@@ -6,12 +6,21 @@ public class TicTacTwoBrain
     private EGamePiece _currentPlayer;
 
     private GameConfiguration _gameConfiguration;
+    
+    private int _piecesLeftX;
+    private int _piecesLeftO;
+    private int _movesMadeX;
+    private int _movesMadeO;
 
     public TicTacTwoBrain(GameConfiguration gameConfiguration)
     {
         _gameConfiguration = gameConfiguration;
         _gameBoard = new EGamePiece[_gameConfiguration.BoardSizeWidth, _gameConfiguration.BoardSizeHeight];
         _currentPlayer = EGamePiece.X;
+        _piecesLeftX = _gameConfiguration.PiecesNumber;
+        _piecesLeftO = _gameConfiguration.PiecesNumber;
+        _movesMadeX = 0;
+        _movesMadeO = 0;
     }
 
     public EGamePiece[,] GameBoard
@@ -23,6 +32,9 @@ public class TicTacTwoBrain
 
     public int DimensionX => _gameBoard.GetLength(0);
     public int DimensionY => _gameBoard.GetLength(1);
+    
+    public int PiecesLeftX => _piecesLeftX;
+    public int PiecesLeftO => _piecesLeftO;
 
     private EGamePiece[,] GetBoard()
     {
@@ -37,16 +49,116 @@ public class TicTacTwoBrain
         return copyOfBoard;
     }
 
-    public bool MakeAMove(int x, int y)
+   public bool MakeAMove()
+{
+    bool canMoveExistingPiece = _currentPlayer == EGamePiece.X
+        ? _movesMadeX >= _gameConfiguration.MovePieceAfterNMove
+        : _movesMadeO >= _gameConfiguration.MovePieceAfterNMove;
+
+    // Ask player if they want to move an existing piece after the set number of moves
+    if (canMoveExistingPiece)
     {
-        if (_gameBoard[x, y] != EGamePiece.Empty)
+        Console.WriteLine("Do you want to move an existing piece? (y/n)");
+        var response = Console.ReadLine();
+        if (response != null && response.ToLower() == "y")
         {
-            return false;
+            // Player chooses to move an existing piece
+            return MoveExistingPiece();
+        }
+    }
+
+    // Proceed with placing a new piece
+    var (inputX, inputY) = GetCoordinatesFromPlayer("Enter the coordinates where you want to place your piece <x,y>:");
+
+    if (_gameBoard[inputX, inputY] != EGamePiece.Empty)
+    {
+        // Tell the user why their move is invalid
+        Console.WriteLine("Invalid move. The spot is already occupied by another piece.");
+        PauseBeforeClear();
+        return false;
+    }
+
+    // Place the piece
+    _gameBoard[inputX, inputY] = _currentPlayer;
+
+    // Update pieces left and move count
+    if (_currentPlayer == EGamePiece.X)
+    {
+        _piecesLeftX--;
+        _movesMadeX++;
+    }
+    else
+    {
+        _piecesLeftO--;
+        _movesMadeO++;
+    }
+
+    SwitchPlayer();
+    return true;
+}
+
+private bool MoveExistingPiece()
+{
+    // Get the coordinates of the piece to move
+    var (oldX, oldY) = GetCoordinatesFromPlayer("Enter the coordinates of the piece you want to move <x,y>:");
+
+    // Check if the selected piece is the player's own piece
+    if (_gameBoard[oldX, oldY] != _currentPlayer)
+    {
+        Console.WriteLine("Invalid selection. That is not your piece. Please try again.");
+        PauseBeforeClear();
+        return false;
+    }
+
+    // Get the coordinates for the new position
+    var (newX, newY) = GetCoordinatesFromPlayer("Enter the new coordinates where you want to move the piece <x,y>:");
+
+    // Check if the new position is already occupied
+    if (_gameBoard[newX, newY] != EGamePiece.Empty)
+    {
+        if (_gameBoard[newX, newY] == _currentPlayer)
+        {
+            Console.WriteLine("Invalid move. You cannot place your piece on top of your own piece. Please try again.");
+        }
+        else
+        {
+            Console.WriteLine("Invalid move. You cannot place your piece on top of the opponent's piece. Please try again.");
+        }
+        PauseBeforeClear();
+        return false;
+    }
+
+    // Move the piece
+    _gameBoard[newX, newY] = _currentPlayer;
+    _gameBoard[oldX, oldY] = EGamePiece.Empty;
+
+    SwitchPlayer();
+    return true;
+}
+
+private void PauseBeforeClear()
+{
+    // Wait for the player to press a key before clearing the console
+    Console.WriteLine("Press any key to continue...");
+    Console.ReadKey(); // Waits for a key press
+    Console.Clear();   // Clear the console after the player presses a key
+}
+    
+    private (int, int) GetCoordinatesFromPlayer(string promptMessage)
+    {
+        Console.WriteLine(promptMessage);
+        var input = Console.ReadLine();
+
+        // Assuming input is in the format "x,y", split it into two values
+        var coordinates = input?.Split(',');
+        if (coordinates == null || coordinates.Length != 2 ||
+            !int.TryParse(coordinates[0], out int x) || !int.TryParse(coordinates[1], out int y))
+        {
+            Console.WriteLine("Invalid input. Please enter valid coordinates in the format 'x,y'.");
+            return GetCoordinatesFromPlayer(promptMessage); // Recursively prompt again
         }
 
-        _gameBoard[x, y] = _currentPlayer;
-        SwitchPlayer();
-        return true;
+        return (x, y);
     }
     
     private void SwitchPlayer()
@@ -125,6 +237,26 @@ public class TicTacTwoBrain
                 return true;
         }
         return false; // No winning line found
+    }
+    
+    public bool CheckDraw()
+    {
+        bool isBoardFull = true;
+        for (int x = 0; x < DimensionX; x++)
+        {
+            for (int y = 0; y < DimensionY; y++)
+            {
+                if (_gameBoard[x, y] == EGamePiece.Empty)
+                {
+                    isBoardFull = false;
+                    break; // Exit the loop early if we find an empty spot
+                }
+            }
+            if (!isBoardFull) break;
+        }
+
+        // A draw occurs if either the board is full or both players are out of pieces and there's no winner
+        return (isBoardFull || (_piecesLeftX <= 0 && _piecesLeftO <= 0)) && !CheckWin();
     }
     
     // Method to get valid coordinates from the user

@@ -17,12 +17,13 @@ public class GameController
             Console.Clear();
             Visualizer.DrawBoard(gameInstance);
             Console.WriteLine($"Current Player: {currentPlayerName} ({gameInstance.CurrentPlayer})"); // Show the current player
-
-            // Get valid coordinates from the user
-            var (inputX, inputY) = gameInstance.GetValidCoordinates();
+            
+            Console.WriteLine($"{playerX} has {gameInstance.PiecesLeftX} pieces left.");
+            Console.WriteLine($"{playerO} has {gameInstance.PiecesLeftO} pieces left.");
+            
 
             // Attempt to make a move
-            if (!gameInstance.MakeAMove(inputX, inputY))
+            if (!gameInstance.MakeAMove())
             {
                 Console.WriteLine("Invalid move. Try again."); // If the move is invalid
                 continue; // Ask for input again
@@ -34,6 +35,14 @@ public class GameController
                 Console.Clear();
                 Visualizer.DrawBoard(gameInstance);
                 Console.WriteLine($"Player {currentPlayerName} wins!"); // Update to reflect current player
+                break; // End game
+            }
+            
+            if (gameInstance.CheckDraw())
+            {
+                Console.Clear();
+                Visualizer.DrawBoard(gameInstance);
+                Console.WriteLine("It's a draw!  Either no more pieces left or the board is full."); // Display draw message
                 break; // End game
             }
 

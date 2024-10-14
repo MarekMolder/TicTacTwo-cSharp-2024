@@ -15,8 +15,10 @@ public class ConfigRepository
             WinCondition = 3,
             GridSizeWidth = 3,
             GridSizeHeight = 3,
-            MovePieceAfterNMove = 0,
+            MovePieceAfterNMove = 10,
             MoveGridAfterNMove = 0,
+            GridPositionX = 0,
+            GridPositionY = 0
         },
         new GameConfiguration()
         {
@@ -29,6 +31,8 @@ public class ConfigRepository
             GridSizeWidth = 3,
             MovePieceAfterNMove = 2,
             MoveGridAfterNMove = 2,
+            GridPositionX = 1,
+            GridPositionY = 1
         }
     };
 

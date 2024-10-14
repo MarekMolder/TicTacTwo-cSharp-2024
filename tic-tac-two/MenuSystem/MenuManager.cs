@@ -155,8 +155,10 @@ public class MenuManager
         }
         while (gridWidth > boardWidth || gridHeight > boardHeight);
 
-        int movePieceAfterNMove = GetValidatedInput("After number of ... steps, you can move pieces (if 0 then cant move pieces): ", 0, null); // No upper limit
+        int movePieceAfterNMove = GetValidatedInput("After number of ... steps, you can move pieces (if 0 then cant move pieces): ", 1, null); // No upper limit
         int moveGridAfterNMove = GetValidatedInput("After number of ... steps, you can move grid (if 0 then cant move grid): ", 0, null); // No upper limit
+        
+        
 
 
         return new GameConfiguration
@@ -168,7 +170,9 @@ public class MenuManager
             GridSizeWidth = gridWidth,
             GridSizeHeight = gridHeight,
             WinCondition = winCondition,
-            MovePieceAfterNMove = movePieceAfterNMove
+            MovePieceAfterNMove = movePieceAfterNMove,
+            MoveGridAfterNMove = moveGridAfterNMove,
+            
         };
     }
     
