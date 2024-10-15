@@ -137,43 +137,94 @@ public class MenuManager
         int boardHeight = GetValidatedInput("Enter board height (min 2, max 20): ", 2, 20);
         int piecesNumber = GetValidatedInput("Enter pieces number (min 2, max 100): ", 2, 100);
         int winCondition = GetValidatedInput("Enter win condition (min 2, max 10): ", 2, 10);
-    
-        // Get grid dimensions with additional validation
-        int gridWidth;
-        int gridHeight;
-    
-        do
-        {
-            gridWidth = GetValidatedInput($"Enter grid width (min 2, max {boardWidth}): ", 2, boardWidth);
-            gridHeight = GetValidatedInput($"Enter grid height (min 2, max {boardHeight}): ", 2, boardHeight);
         
-            if (gridWidth > boardWidth || gridHeight > boardHeight)
+        int movePieceAfterNMove = GetValidatedInput("After number of ... steps, you can move pieces: ", 0, null); // No upper limit
+      
+
+        bool usesGrid;
+        while (true)
+        {
+            Console.Write("Do you want a grid for your game? (yes/no): ");
+            string input = Console.ReadLine()?.Trim().ToLower();
+
+            if (input == "yes")
             {
-                Console.WriteLine($"Grid dimensions must not exceed board dimensions. " +
-                                  $"Please ensure grid width ≤ {boardWidth} and grid height ≤ {boardHeight}.");
+                usesGrid = true;
+                break;
+            }
+            else if (input == "no")
+            {
+                usesGrid = false;
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
             }
         }
-        while (gridWidth > boardWidth || gridHeight > boardHeight);
-
-        int movePieceAfterNMove = GetValidatedInput("After number of ... steps, you can move pieces (if 0 then cant move pieces): ", 1, null); // No upper limit
-        int moveGridAfterNMove = GetValidatedInput("After number of ... steps, you can move grid (if 0 then cant move grid): ", 0, null); // No upper limit
         
+        int gridPositionX = 0;
+        int gridPositionY = 0;
+        int gridWidth = 0;
+        int gridHeight = 0;
+        int moveGridAfterNMove = 100000;
+
+        if (usesGrid)
+        {
+            // Get grid dimensions with additional validation
+            do
+            {
+                gridWidth = GetValidatedInput($"Enter grid width (min 2, max {boardWidth}): ", 2, boardWidth);
+                gridHeight = GetValidatedInput($"Enter grid height (min 2, max {boardHeight}): ", 2, boardHeight);
         
+                if (gridWidth > boardWidth || gridHeight > boardHeight)
+                {
+                    Console.WriteLine($"Grid dimensions must not exceed board dimensions. " +
+                                      $"Please ensure grid width ≤ {boardWidth} and grid height ≤ {boardHeight}.");
+                }
+            }
+            while (gridWidth > boardWidth || gridHeight > boardHeight);
+            
+            moveGridAfterNMove = GetValidatedInput("After number of ... steps, you can move grid: ", 0, null); // No upper limit
+            
+            while (true)
+            {
+                gridPositionX = GetValidatedInput("grid X Coordinate: ", 0, null); // No upper limit
+                gridPositionY = GetValidatedInput("grid Y Coordinate: ", 0, null); // No upper limit
 
+                // Check if the new grid position is valid
+                if (gridPositionX < 0 || gridPositionX + gridWidth > boardWidth || 
+                    gridPositionY < 0 || gridPositionY + gridHeight > boardHeight)
+                {
+                    Console.WriteLine("Invalid grid position. Please try again.");
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey(); // Waits for a key press
+                    Console.Clear(); // Clear the console for a better user experience
+                }
+                else
+                {
+                    break; // Exit the loop if the position is valid
+                }
+            }
+        }
 
+// Return the configuration
         return new GameConfiguration
         {
             Name = "Custom",
             BoardSizeWidth = boardWidth,
             BoardSizeHeight = boardHeight,
             PiecesNumber = piecesNumber,
-            GridSizeWidth = gridWidth,
-            GridSizeHeight = gridHeight,
+            GridSizeWidth = usesGrid ? gridWidth : 0,
+            GridSizeHeight = usesGrid ? gridHeight : 0,
             WinCondition = winCondition,
+            UsesGrid = usesGrid,
             MovePieceAfterNMove = movePieceAfterNMove,
-            MoveGridAfterNMove = moveGridAfterNMove,
-            
+            MoveGridAfterNMove = usesGrid ? moveGridAfterNMove : 10000,
+            GridPositionX = usesGrid ? gridPositionX : 0, // Set grid position if used, else default to 0
+            GridPositionY = usesGrid ? gridPositionY : 0  // Set grid position if used, else default to 0
         };
+
     }
     
     private int GetValidatedInput(string prompt, int minValue, int? maxValue)

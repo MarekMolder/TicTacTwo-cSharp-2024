@@ -10,6 +10,8 @@ public record struct GameConfiguration()
     public int PiecesNumber { get; set; }
     public int WinCondition { get; set; }
     
+    public bool UsesGrid { get; set; }
+    
     public int GridSizeWidth { get; set; }
     public int GridSizeHeight { get; set; }
     public int MovePieceAfterNMove { get; set; }

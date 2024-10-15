@@ -29,12 +29,31 @@ public class GameController
                 continue; // Ask for input again
             }
 
-            // Check for a win condition
-            if (gameInstance.CheckWin())
+            EGamePiece? winner = gameInstance.CheckWin();
+            string? winningPlayerName = null; // Initialize variable to hold the winning player name
+
+            if (winner == EGamePiece.X)
+            {
+                winningPlayerName = playerX; // Assign player X's name to the winning player
+            }
+            else if (winner == EGamePiece.O)
+            {
+                winningPlayerName = playerO; // Assign player O's name to the winning player
+            }
+
+            if (winner != null)
             {
                 Console.Clear();
                 Visualizer.DrawBoard(gameInstance);
-                Console.WriteLine($"Player {currentPlayerName} wins!"); // Update to reflect current player
+                Console.WriteLine($"Player {winningPlayerName} wins!"); // Display the winning player's name
+                break; // End game
+            }
+            
+            if (winner != null)
+            {
+                Console.Clear();
+                Visualizer.DrawBoard(gameInstance);
+                Console.WriteLine($"Player {winner} wins!"); // Update to reflect the winning player
                 break; // End game
             }
             
