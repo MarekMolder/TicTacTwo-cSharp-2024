@@ -2,10 +2,10 @@
 
 namespace DAL;
 
-public class ConfigRepository
+public abstract class ConfigRepository
 {
-    private static List<GameConfiguration> _gameConfigurations = new List<GameConfiguration>()
-    {
+    private static readonly List<GameConfiguration> GameConfigurations =
+    [
         new GameConfiguration()
         {
             Name = "Classical",
@@ -21,6 +21,7 @@ public class ConfigRepository
             GridPositionX = 0,
             GridPositionY = 0
         },
+
         new GameConfiguration()
         {
             Name = "Regular tic-tac-two",
@@ -36,11 +37,11 @@ public class ConfigRepository
             GridPositionX = 1,
             GridPositionY = 1
         }
-    };
+    ];
 
     public static List<string> GetConfigurationNames()
     {
-        return _gameConfigurations
+        return GameConfigurations
             .OrderBy(x => x.Name)
             .Select(config => config.Name)
             .ToList();
@@ -48,6 +49,6 @@ public class ConfigRepository
     
     public static GameConfiguration GetConfigurationByName(string name)
     {
-        return _gameConfigurations.Single(c => c.Name == name);
+        return GameConfigurations.Single(c => c.Name == name);
     }
 }

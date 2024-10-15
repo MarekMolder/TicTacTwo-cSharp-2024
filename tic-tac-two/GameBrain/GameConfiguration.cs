@@ -21,6 +21,13 @@ public record struct GameConfiguration()
     public int GridPositionY { get; set; }
 
     public override string ToString() =>
-        $"Board {BoardSizeWidth}x{BoardSizeHeight} | to win: {WinCondition} | can move pieces after {MovePieceAfterNMove} moves | grid position: {GridPositionX},{GridPositionY}";
+        $"Name - {Name}" +
+        $"| Board {BoardSizeWidth}x{BoardSizeHeight} " +
+        $"| Uses grid {UsesGrid} " +
+        $"| Grid {GridSizeWidth}x{GridSizeHeight} " +
+        $"| grid position: {GridPositionX},{GridPositionY} " +
+        $"| to win: {WinCondition} " +
+        $"| can move pieces after {MovePieceAfterNMove} moves " +
+        $"| can move grid after {MovePieceAfterNMove} moves ";
     
 }

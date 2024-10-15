@@ -1,4 +1,4 @@
 ﻿using System;
-using MenuSystem;
-var menuManager = new MenuManager();
-menuManager.RunMainMenu();
+using GameController;
+
+Menus.RunMainMenu();
