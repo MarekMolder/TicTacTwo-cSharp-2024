@@ -2,17 +2,27 @@
 using GameBrain;
 using MenuSystem;
 
-namespace GameController;
+namespace ConsoleApp;
 
 /// <summary>
 /// The Menus class handles the game's user interface, managing menu displays and user interactions.
 /// </summary>
 public class Menus
 {
+    private readonly IConfigRepository _configRepository;
+    private readonly IGameRepository _gameRepository;
+
+    public Menus()
+    {
+        _configRepository = new ConcreteConfigRepositoryJson(); //TODO: SIIN SAAD VAHETADA HARDCODED jsonI VASTU
+        _gameRepository = new GameRepositoryJson();
+    }
+    
+    
     /// <summary>
     /// Displays the main menu of the game and allows the user to select an option.
     /// </summary>
-    public static void RunMainMenu()
+    public void RunMainMenu()
     {
         // Main menu prompt with ASCII art
         const string prompt = """
@@ -31,7 +41,7 @@ public class Menus
         var options = new List<Option>
         {
             new Option("New Game", "Start a new game.", RunNewGameMenu),
-            new Option("Load Game", "Load a previously saved game.", CustomInput.LoadGame),
+            new Option("Load Game", "Load a previously saved game.", LoadGame),
             new Option("Instructions", "View game instructions.", DisplayInstructions),
             new Option("About", "Learn more about the game and its creator.", DisplayAboutInfo),
             new Option("Exit", "Exit the game application.", ExitGame)
@@ -44,15 +54,15 @@ public class Menus
     /// <summary>
     /// Displays the new game menu where the user can select the game configuration.
     /// </summary>
-    private static void RunNewGameMenu()
+    private void RunNewGameMenu()
     {
         // Prompt for selecting a game configuration
         const string prompt = "To Start a New Game, select the game configuration:";
 
         // Retrieve configuration names and create corresponding menu options
-        var configNames = ConfigRepository.GetConfigurationNames();
+        var configNames = _configRepository.GetConfigurationNames();
         var options = configNames.Select(configName => 
-            new Option(configName, $"Start the {configName} game", () => StartGame(ConfigRepository.GetConfigurationByName(configName)))
+            new Option(configName, $"Start the {configName} game", () => StartGame(_configRepository.GetConfigurationByName(configName)))
         ).ToList();
 
         // Add options for custom configuration and returning to the main menu
@@ -68,7 +78,7 @@ public class Menus
     /// Starts the game with the selected game configuration.
     /// </summary>
     /// <param name="gameConfig">The game configuration to use for the new game.</param>
-    private static void StartGame(GameConfiguration gameConfig)
+    private void StartGame(GameConfiguration gameConfig)
     {
         // Prompt the user to input player names and start the game
         var (playerX, playerO) = CustomInput.InputPlayerNames();
@@ -78,7 +88,7 @@ public class Menus
     /// <summary>
     /// Starts a custom game configuration.
     /// </summary>
-    private static void StartCustomGame()
+    private void StartCustomGame()
     {
         // Get the custom configuration and player names, then start the game
         var customConfig = CustomInput.InputCustomConfiguration();
@@ -86,10 +96,49 @@ public class Menus
         new ConsoleApp.GameController().NewGame(customConfig, playerX, playerO);
     }
 
+    private void LoadGame()
+    {
+        // Prompt for loading a saved game
+        const string prompt = "Select a saved game to load:";
+
+        // Retrieve all saved game files, assuming the file naming convention includes the configuration name
+        var savedGames = System.IO.Directory.GetFiles(FileHelper._basePath, $"*{FileHelper.GameExtension}");
+    
+        // Check if there are saved games available
+        if (savedGames.Length == 0)
+        {
+            Console.WriteLine("No saved games available to load.");
+            RunMainMenu(); // Return to the main menu if no saved games
+            return;
+        }
+
+        // Create options for each saved game file
+        var options = savedGames.Select(filePath =>
+        {
+            var gameName = System.IO.Path.GetFileNameWithoutExtension(filePath); // Extract the game name from the file path
+            return new Option(gameName, $"Load the game '{gameName}'", () =>
+            {
+                string jsonState = System.IO.File.ReadAllText(filePath);
+                // Deserialize the game state and start the game
+                var gameConfiguration = _configRepository.GetConfigurationByName(gameName); // Adjust this if needed
+                StartGame(gameConfiguration);
+                
+            });
+        }).ToList();
+
+        // Add option to return to the main menu
+        options.Add(new Option("Return", "Return to the main menu.", RunMainMenu));
+        options.Add(new Option("Exit", "Exit the game application.", ExitGame));
+
+        // Create and run the load game menu
+        new Menu(prompt, options).Run();
+    }
+
+
     /// <summary>
     /// Displays the game instructions to the user.
     /// </summary>
-    private static void DisplayInstructions()
+    private void DisplayInstructions()
     {
         Console.Clear(); // Clear the console for a fresh display
         Console.WriteLine("=== Tic-Tac-Two Instructions ===");
@@ -106,7 +155,7 @@ public class Menus
     /// <summary>
     /// Displays information about the game and its creator.
     /// </summary>
-    private static void DisplayAboutInfo()
+    private void DisplayAboutInfo()
     {
         Console.Clear(); // Clear the console for a fresh display
         Console.WriteLine("This game was created by Marek Mölder.\n");
@@ -118,7 +167,7 @@ public class Menus
     /// <summary>
     /// Exits the game application.
     /// </summary>
-    private static void ExitGame()
+    private void ExitGame()
     {
         Console.WriteLine("\nPress Enter to exit..."); 
         WaitForEnter(); // Wait for the user to press Enter before exiting
@@ -128,7 +177,7 @@ public class Menus
     /// <summary>
     /// Waits for the user to press the Enter key.
     /// </summary>
-    private static void WaitForEnter()
+    private void WaitForEnter()
     {
         ConsoleKey keyPressed;
         do

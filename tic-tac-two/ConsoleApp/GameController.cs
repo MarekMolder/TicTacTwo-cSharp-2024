@@ -1,4 +1,6 @@
-﻿using ConsoleUI;
+﻿using System.Text.Json;
+using ConsoleUI;
+using DAL;
 using GameBrain;
 
 namespace ConsoleApp;
@@ -8,12 +10,8 @@ namespace ConsoleApp;
 /// </summary>
 public class GameController
 {
-    /// <summary>
-    /// Starts a new game with the given configuration and player names.
-    /// </summary>
-    /// <param name="chosenConfig">The configuration settings for the game.</param>
-    /// <param name="playerX">The name of player X.</param>
-    /// <param name="playerO">The name of player O.</param>
+    private readonly IGameRepository _gameRepository = new GameRepositoryJson();
+    
     public void NewGame(GameConfiguration chosenConfig, string playerX, string playerO)
     {
         // Create a new instance of the game brain with the chosen configuration
@@ -25,6 +23,12 @@ public class GameController
         {
             // Display the current state of the game board
             DisplayBoard(gameInstance, currentPlayerName, playerX, playerO);
+
+            if (gameInstance.SaveTheGame())
+            {
+                _gameRepository.Savegame(gameInstance.getGameStateJson(), gameInstance.GetGameConfigName());
+                break;
+            }
 
             // Attempt to make a move
             if (!gameInstance.MakeAMove())
@@ -43,15 +47,11 @@ public class GameController
             currentPlayerName = currentPlayerName == playerX ? playerO : playerX;
 
         } while (true); // Repeat until the game ends
-    }
 
-    /// <summary>
-    /// Displays the current game board and player information.
-    /// </summary>
-    /// <param name="gameInstance">The current game instance.</param>
-    /// <param name="currentPlayerName">The name of the current player.</param>
-    /// <param name="playerX">The name of player X.</param>
-    /// <param name="playerO">The name of player O.</param>
+        var menus = new Menus();
+        menus.RunMainMenu();
+    }
+    
     private void DisplayBoard(TicTacTwoBrain gameInstance, string currentPlayerName, string playerX, string playerO)
     {
         Console.Clear(); // Clear the console for a fresh display
@@ -60,14 +60,7 @@ public class GameController
         Console.WriteLine($"{playerX} has {gameInstance.PiecesLeftX} pieces left."); // Show remaining pieces for player X
         Console.WriteLine($"{playerO} has {gameInstance.PiecesLeftO} pieces left."); // Show remaining pieces for player O
     }
-
-    /// <summary>
-    /// Checks the end game conditions to see if a player has won or if the game is a draw.
-    /// </summary>
-    /// <param name="gameInstance">The current game instance.</param>
-    /// <param name="playerX">The name of player X.</param>
-    /// <param name="playerO">The name of player O.</param>
-    /// <returns>True if the game has ended; otherwise, false.</returns>
+    
     private bool CheckEndGameConditions(TicTacTwoBrain gameInstance, string playerX, string playerO)
     {
         var winner = gameInstance.CheckWin(); // Check for a winner
@@ -85,12 +78,7 @@ public class GameController
         Console.WriteLine("It's a draw! Either no more pieces left or the board is full."); // Inform players of the draw
         return true; // Game has ended
     }
-
-    /// <summary>
-    /// Displays the winner of the game.
-    /// </summary>
-    /// <param name="winningPlayerName">The name of the winning player.</param>
-    /// <param name="gameInstance">The current game instance.</param>
+    
     private void DisplayWinner(string winningPlayerName, TicTacTwoBrain gameInstance)
     {
         Console.Clear(); // Clear the console

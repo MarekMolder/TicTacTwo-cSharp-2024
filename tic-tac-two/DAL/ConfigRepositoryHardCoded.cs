@@ -5,12 +5,12 @@ namespace DAL;
 /// <summary>
 /// Abstract base class for managing game configurations.
 /// </summary>
-public abstract class ConfigRepository
+public abstract class ConfigRepositoryHardCoded: IConfigRepository
 {
     /// <summary>
     /// A static readonly list of predefined game configurations.
     /// </summary>
-    private static readonly List<GameConfiguration> GameConfigurations =
+    private readonly List<GameConfiguration> _gameConfigurations =
     [
         new GameConfiguration()
         {
@@ -49,9 +49,9 @@ public abstract class ConfigRepository
     /// Retrieves the names of all available game configurations, sorted alphabetically.
     /// </summary>
     /// <returns>A list of configuration names.</returns>
-    public static List<string> GetConfigurationNames()
+    public List<string> GetConfigurationNames()
     {
-        return GameConfigurations
+        return _gameConfigurations
             .OrderBy(x => x.Name) // Order configurations by name
             .Select(config => config.Name) // Select the name of each configuration
             .ToList(); // Convert to a list
@@ -63,8 +63,8 @@ public abstract class ConfigRepository
     /// <param name="name">The name of the game configuration to retrieve.</param>
     /// <returns>The game configuration matching the provided name.</returns>
     /// <exception cref="InvalidOperationException">Thrown if no configuration matches the name.</exception>
-    public static GameConfiguration GetConfigurationByName(string name)
+    public GameConfiguration GetConfigurationByName(string name)
     {
-        return GameConfigurations.Single(c => c.Name == name); // Retrieve the configuration with the matching name
+        return _gameConfigurations.Single(c => c.Name == name); // Retrieve the configuration with the matching name
     }
 }

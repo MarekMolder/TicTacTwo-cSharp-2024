@@ -2,15 +2,8 @@
 
 namespace ConsoleUI;
 
-/// <summary>
-/// Responsible for visualizing the Tic-Tac-Two game board in the console.
-/// </summary>
 public class Visualizer
 {
-    /// <summary>
-    /// Draws the game board based on the current game instance.
-    /// </summary>
-    /// <param name="gameInstance">The instance of the game containing the current state and configuration.</param>
     public static void DrawBoard(TicTacTwoBrain gameInstance)
     {
         int gridStartX = gameInstance.GridPositionX; // Starting X coordinate of the grid
@@ -38,9 +31,9 @@ public class Visualizer
                 // Set the background color based on the grid position
                 SetBackgroundColorForGrid(gameInstance, x, y, gridStartX, gridEndX, gridStartY, gridEndY);
                 // Set the foreground color based on the game piece
-                SetForegroundColorForPiece(gameInstance.GameBoard[x, y]);
+                SetForegroundColorForPiece(gameInstance.GameBoard[x][y]);
 
-                Console.Write($" {DrawGamePiece(gameInstance.GameBoard[x, y])} "); // Draw the game piece
+                Console.Write($" {DrawGamePiece(gameInstance.GameBoard[x][y])} "); // Draw the game piece
                 Console.ResetColor(); // Reset colors to default
 
                 if (x != gameInstance.DimensionX - 1) 
@@ -54,17 +47,7 @@ public class Visualizer
 
         Console.ResetColor(); // Restore original console colors
     }
-
-    /// <summary>
-    /// Sets the background color for the grid cells.
-    /// </summary>
-    /// <param name="gameInstance">The current game instance.</param>
-    /// <param name="x">The X coordinate of the cell.</param>
-    /// <param name="y">The Y coordinate of the cell.</param>
-    /// <param name="gridStartX">The starting X coordinate of the grid.</param>
-    /// <param name="gridEndX">The ending X coordinate of the grid.</param>
-    /// <param name="gridStartY">The starting Y coordinate of the grid.</param>
-    /// <param name="gridEndY">The ending Y coordinate of the grid.</param>
+    
     private static void SetBackgroundColorForGrid(TicTacTwoBrain gameInstance, int x, int y, int gridStartX, int gridEndX, int gridStartY, int gridEndY)
     {
         // Set background color for cells within the grid
@@ -77,11 +60,7 @@ public class Visualizer
             Console.BackgroundColor = ConsoleColor.Black; // Default color for non-grid cells
         }
     }
-
-    /// <summary>
-    /// Sets the foreground color for game pieces based on their type.
-    /// </summary>
-    /// <param name="piece">The game piece to set the color for.</param>
+    
     private static void SetForegroundColorForPiece(EGamePiece piece)
     {
         // Set foreground color for X and O pieces
@@ -98,17 +77,7 @@ public class Visualizer
                 break;
         }
     }
-
-    /// <summary>
-    /// Draws vertical separators between cells in the grid.
-    /// </summary>
-    /// <param name="gameInstance">The current game instance.</param>
-    /// <param name="x">The X coordinate of the cell.</param>
-    /// <param name="y">The Y coordinate of the cell.</param>
-    /// <param name="gridStartX">The starting X coordinate of the grid.</param>
-    /// <param name="gridEndX">The ending X coordinate of the grid.</param>
-    /// <param name="gridStartY">The starting Y coordinate of the grid.</param>
-    /// <param name="gridEndY">The ending Y coordinate of the grid.</param>
+    
     private static void DrawVerticalSeparator(TicTacTwoBrain gameInstance, int x, int y, int gridStartX, int gridEndX, int gridStartY, int gridEndY)
     {
         // Draw vertical separators within the grid
@@ -119,16 +88,7 @@ public class Visualizer
         Console.Write("|"); // Print vertical separator
         Console.ResetColor(); // Reset color
     }
-
-    /// <summary>
-    /// Draws horizontal separators between rows in the grid.
-    /// </summary>
-    /// <param name="gameInstance">The current game instance.</param>
-    /// <param name="y">The Y coordinate of the row.</param>
-    /// <param name="gridStartX">The starting X coordinate of the grid.</param>
-    /// <param name="gridEndX">The ending X coordinate of the grid.</param>
-    /// <param name="gridStartY">The starting Y coordinate of the grid.</param>
-    /// <param name="gridEndY">The ending Y coordinate of the grid.</param>
+    
     private static void DrawHorizontalSeparator(TicTacTwoBrain gameInstance, int y, int gridStartX, int gridEndX, int gridStartY, int gridEndY)
     {
         Console.Write("  +"); // Start the horizontal separator
@@ -146,12 +106,7 @@ public class Visualizer
         }
         Console.WriteLine(); // Move to the next line
     }
-
-    /// <summary>
-    /// Returns the string representation of the game piece.
-    /// </summary>
-    /// <param name="piece">The game piece to convert to a string.</param>
-    /// <returns>A string representing the game piece.</returns>
+    
     private static string DrawGamePiece(EGamePiece piece) => 
         piece switch
         {
