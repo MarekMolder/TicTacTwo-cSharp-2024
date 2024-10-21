@@ -12,6 +12,12 @@
                 gameBoard[i] = new EGamePiece[gameConfiguration.BoardSizeHeight];
             }
             
+            int finalGridPositionX = gridPositionX == -1 ? gameConfiguration.GridPositionX : gridPositionX;
+            int finalGridPositionY = gridPositionY == -1 ? gameConfiguration.GridPositionY : gridPositionY;
+            
+            Console.WriteLine($"Final Grid Position X: {finalGridPositionX}");
+            Console.WriteLine($"Final Grid Position Y: {finalGridPositionY}");
+            
             // Initialize the game state with default values first
             _gameState = new GameState(
                 gameBoard,
@@ -23,9 +29,12 @@
                 movesMadeO, // Moves made by player O
                 playerX,
                 playerO,
-                gridPositionX == -1 ? gameConfiguration.GridPositionX : gridPositionX, // Use provided or default
-                gridPositionY == -1 ? gameConfiguration.GridPositionY : gridPositionY  // Use provided or default
+                finalGridPositionX, // Use calculated final grid position
+                finalGridPositionY  // Use calculated final grid position
             );
+            
+            GridPositionX = finalGridPositionX; // Set the property
+            GridPositionY = finalGridPositionY; // Set the property
 
             // Initialize the game board dimensions and grid settings
             GridSizeWidth = _gameState.GameConfiguration.GridSizeWidth;
@@ -107,10 +116,19 @@ public void SetGameBoard(EGamePiece[][] gameBoard)
 
         public int GridSizeWidth { get; } // Width of the grid.
         public int GridSizeHeight { get; } // Height of the grid.
-
-        public int GridPositionX { get; private set; } // Current X position of the grid.
-        public int GridPositionY { get; private set; } // Current Y position of the grid.
-
+        
+        public int GridPositionX
+        {
+            get => _gameState.GridPositionX; // Returns the current grid positon x.
+            set => _gameState.GridPositionX = value;
+        }
+        
+        public int GridPositionY
+        {
+            get => _gameState.GridPositionY; // Returns the current grid positon x.
+            set => _gameState.GridPositionY = value;
+        }
+        
         public int DimensionX => _gameState.GameBoard.Length; // Width of the game board.
         public int DimensionY => _gameState.GameBoard[0].Length; // Height of the game board.
 

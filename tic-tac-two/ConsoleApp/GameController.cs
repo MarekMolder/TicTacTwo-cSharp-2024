@@ -47,9 +47,7 @@ public class GameController
             currentPlayerName = currentPlayerName == playerX ? playerO : playerX;
 
         } while (true); // Repeat until the game ends
-
-        var menus = new Menus();
-        menus.RunMainMenu();
+        
     }
     
     public void OldGame(EGamePiece[][] gameBoard, GameConfiguration gameConfig, EGamePiece currentPlayer, int piecesLeftX, int piecesLeftO, int movesMadeX, int movesMadeO, string playerX, string playerO, int gridPositionX, int gridPositionY)
@@ -97,9 +95,7 @@ public class GameController
             currentPlayerName = currentPlayerName == playerX ? playerO : playerX;
 
         } while (true); // Repeat until the game ends
-
-        var menus = new Menus();
-        menus.RunMainMenu();
+        
     }
 
     
