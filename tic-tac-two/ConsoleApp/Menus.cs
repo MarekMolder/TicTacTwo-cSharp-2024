@@ -1,4 +1,5 @@
-﻿using DAL;
+﻿using System.Text.Json;
+using DAL;
 using GameBrain;
 using MenuSystem;
 
@@ -98,40 +99,51 @@ public class Menus
 
     private void LoadGame()
     {
-        // Prompt for loading a saved game
         const string prompt = "Select a saved game to load:";
-
-        // Retrieve all saved game files, assuming the file naming convention includes the configuration name
         var savedGames = System.IO.Directory.GetFiles(FileHelper._basePath, $"*{FileHelper.GameExtension}");
-    
-        // Check if there are saved games available
+
         if (savedGames.Length == 0)
         {
             Console.WriteLine("No saved games available to load.");
-            RunMainMenu(); // Return to the main menu if no saved games
+            RunMainMenu();
             return;
         }
 
-        // Create options for each saved game file
         var options = savedGames.Select(filePath =>
         {
-            var gameName = System.IO.Path.GetFileNameWithoutExtension(filePath); // Extract the game name from the file path
-            return new Option(gameName, $"Load the game '{gameName}'", () =>
-            {
-                string jsonState = System.IO.File.ReadAllText(filePath);
-                // Deserialize the game state and start the game
-                var gameConfiguration = _configRepository.GetConfigurationByName(gameName); // Adjust this if needed
-                StartGame(gameConfiguration);
-                
-            });
+            var gameName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+            return new Option(gameName, $"Load the game '{gameName}'", () => LoadSavedGame(filePath));
         }).ToList();
 
-        // Add option to return to the main menu
         options.Add(new Option("Return", "Return to the main menu.", RunMainMenu));
         options.Add(new Option("Exit", "Exit the game application.", ExitGame));
 
-        // Create and run the load game menu
         new Menu(prompt, options).Run();
+    }
+    
+    private void LoadSavedGame(string filePath)
+    {
+        // Read the JSON state from the saved game file
+        string jsonState = System.IO.File.ReadAllText(filePath);
+
+        // Deserialize the game state
+        var gameState = JsonSerializer.Deserialize<GameState>(jsonState);
+
+        // Load all the necessary properties from the saved game state
+        EGamePiece[][] gameBoard = gameState.GameBoard;
+        GameConfiguration gameConfig = gameState.GameConfiguration;
+        EGamePiece currentPlayer = gameState.CurrentPlayer;
+        int piecesLeftX = gameState.PiecesLeftX;
+        int piecesLeftO = gameState.PiecesLeftO;
+        int movesMadeX = gameState.MovesMadeX;
+        int movesMadeO = gameState.MovesMadeO;
+        string playerX = gameState.PlayerX ?? "Player X";  // Default value if null
+        string playerO = gameState.PlayerO ?? "Player O";  // Default value if null
+        int gridPositionX = gameState.GridPositionX;
+        int gridPositionY = gameState.GridPositionY;
+
+        // Pass the loaded game state to OldGame to continue the game
+        new ConsoleApp.GameController().OldGame(gameBoard, gameConfig, currentPlayer, piecesLeftX, piecesLeftO, movesMadeX, movesMadeO, playerX, playerO, gridPositionX, gridPositionY);
     }
 
 

@@ -4,7 +4,7 @@
     {
         private readonly GameState _gameState;
         
-        public TicTacTwoBrain(GameConfiguration gameConfiguration)
+        public TicTacTwoBrain(GameConfiguration gameConfiguration, string playerX, string playerO,int gridPositionY = -1, int gridPositionX = -1, int movesMadeX = 0, int movesMadeO = 0)
         {
             var gameBoard = new EGamePiece[gameConfiguration.BoardSizeWidth][];
             for (var i = 0; i < gameBoard.Length; i++)
@@ -19,19 +19,21 @@
                 EGamePiece.X, // Assuming X starts first
                 gameConfiguration.PiecesNumber,
                 gameConfiguration.PiecesNumber,
-                0,  // Moves made by player X
-                0   // Moves made by player O
+                movesMadeX,  // Moves made by player X
+                movesMadeO, // Moves made by player O
+                playerX,
+                playerO,
+                gridPositionX == -1 ? gameConfiguration.GridPositionX : gridPositionX, // Use provided or default
+                gridPositionY == -1 ? gameConfiguration.GridPositionY : gridPositionY  // Use provided or default
             );
 
             // Initialize the game board dimensions and grid settings
             GridSizeWidth = _gameState.GameConfiguration.GridSizeWidth;
             GridSizeHeight = _gameState.GameConfiguration.GridSizeHeight;
-            GridPositionX = _gameState.GameConfiguration.GridPositionX;
-            GridPositionY = _gameState.GameConfiguration.GridPositionY;
             UsesGrid = _gameState.GameConfiguration.UsesGrid;
         }
 
-        public string getGameStateJson()
+        public string GetGameStateJson()
         {
             return _gameState.ToString();
         }
@@ -43,7 +45,65 @@
 
         // Public properties to access game state information.
         public EGamePiece[][] GameBoard => GetBoardCopy(); // Returns a copy of the game board.
-        public EGamePiece CurrentPlayer => _gameState.CurrentPlayer; // Returns the current player.
+        
+public void SetGameBoard(EGamePiece[][] gameBoard)
+{
+    // Kontrollime, kas mängulaud on määratud
+    if (gameBoard == null || gameBoard.Length == 0 || gameBoard[0] == null)
+    {
+        throw new ArgumentNullException(nameof(gameBoard), "Provided game board cannot be null or empty.");
+    }
+
+    // Võtame dimensioonid otse sisendist, mitte praegusest mängu olekust
+    int boardDimensionX = gameBoard.Length;
+    int boardDimensionY = gameBoard[0].Length;
+
+    // Kontrollime, kas mängulaud sobib praeguse mänguseadistusega
+    if (boardDimensionX != DimensionX || boardDimensionY != DimensionY)
+    {
+        throw new ArgumentException("The dimensions of the provided game board do not match the game configuration.");
+    }
+
+    // Sügava koopia tegemine mängulauast
+    _gameState.GameBoard = new EGamePiece[boardDimensionX][];
+    for (int i = 0; i < boardDimensionX; i++)
+    {
+        _gameState.GameBoard[i] = new EGamePiece[boardDimensionY];
+        Array.Copy(gameBoard[i], _gameState.GameBoard[i], boardDimensionY); // Kopeerime iga rea
+    }
+
+    // Kui grid on kasutusel, siis kopeerime grid'i sisu õigesse kohta mängulaual
+    if (UsesGrid)
+    {
+        for (int i = 0; i < GridSizeWidth; i++)
+        {
+            for (int j = 0; j < GridSizeHeight; j++)
+            {
+                // Arvutame grid'i sees olevate nuppude tegelikud positsioonid mängulaual
+                int targetX = GridPositionX + i;
+                int targetY = GridPositionY + j;
+
+                // Veendume, et koordinaadid jäävad mängulaua piiridesse
+                if (targetX >= 0 && targetX < boardDimensionX && targetY >= 0 && targetY < boardDimensionY)
+                {
+                    // Kopeerime grid'i sees oleva nuppu sisu õigesse kohta mängulaual
+                    _gameState.GameBoard[targetX][targetY] = gameBoard[targetX][targetY];
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Grid position is out of the game board bounds.");
+                }
+            }
+        }
+    }
+}
+
+        
+        public EGamePiece CurrentPlayer
+        {
+            get => _gameState.CurrentPlayer; // Returns the current player.
+            set => _gameState.CurrentPlayer = value;
+        }
 
         public int GridSizeWidth { get; } // Width of the grid.
         public int GridSizeHeight { get; } // Height of the grid.
@@ -54,10 +114,22 @@
         public int DimensionX => _gameState.GameBoard.Length; // Width of the game board.
         public int DimensionY => _gameState.GameBoard[0].Length; // Height of the game board.
 
-        public int PiecesLeftX => _gameState.PiecesLeftX; // Remaining pieces for player X.
-        public int PiecesLeftO => _gameState.PiecesLeftO; // Remaining pieces for player O.
+        public int PiecesLeftX
+        {
+            get => _gameState.PiecesLeftX; // Remaining pieces for player X.
+            set => _gameState.PiecesLeftX = value;
+        }
+
+        public int PiecesLeftO
+        {
+            get => _gameState.PiecesLeftO; // Remaining pieces for player O.
+            set => _gameState.PiecesLeftO = value;
+        }
+
         public bool UsesGrid { get; } // Indicates if the game uses a grid.
-        
+        public int MovesMadeX { get; set; }
+        public int MovesMadeO { get; set; }
+
         private EGamePiece[][] GetBoardCopy()
         {
             var copy = new EGamePiece[DimensionX][];
@@ -487,5 +559,6 @@
             // Check if the player has made enough moves and has no pieces left
             return movesMade >= _gameState.GameConfiguration.MovePieceAfterNMove && piecesLeft <= 0;
         }
+        
     }
 }

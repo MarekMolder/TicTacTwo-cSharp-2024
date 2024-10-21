@@ -15,7 +15,7 @@ public class GameController
     public void NewGame(GameConfiguration chosenConfig, string playerX, string playerO)
     {
         // Create a new instance of the game brain with the chosen configuration
-        var gameInstance = new TicTacTwoBrain(chosenConfig);
+        var gameInstance = new TicTacTwoBrain(chosenConfig, playerX, playerO);
         var currentPlayerName = playerX;
 
         // Main game loop
@@ -26,7 +26,7 @@ public class GameController
 
             if (gameInstance.SaveTheGame())
             {
-                _gameRepository.Savegame(gameInstance.getGameStateJson(), gameInstance.GetGameConfigName());
+                _gameRepository.Savegame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
                 break;
             }
 
@@ -51,6 +51,57 @@ public class GameController
         var menus = new Menus();
         menus.RunMainMenu();
     }
+    
+    public void OldGame(EGamePiece[][] gameBoard, GameConfiguration gameConfig, EGamePiece currentPlayer, int piecesLeftX, int piecesLeftO, int movesMadeX, int movesMadeO, string playerX, string playerO, int gridPositionX, int gridPositionY)
+    {
+        // Initialize the game with the loaded configuration
+        var gameInstance = new TicTacTwoBrain(gameConfig, playerX, playerO, gridPositionX, gridPositionY, movesMadeX, movesMadeO);
+
+        // Set the restored game state
+        gameInstance.SetGameBoard(gameBoard); // You need to implement this in TicTacTwoBrain if it doesn't exist
+        gameInstance.CurrentPlayer = currentPlayer;
+        gameInstance.PiecesLeftX = piecesLeftX;
+        gameInstance.PiecesLeftO = piecesLeftO;
+        gameInstance.MovesMadeX = movesMadeX;
+        gameInstance.MovesMadeO = movesMadeO;
+
+        // Determine who the current player is based on the game state
+        var currentPlayerName = currentPlayer == EGamePiece.X ? playerX : playerO;
+
+        // Game loop to continue the game
+        do
+        {
+            // Display the current state of the game board
+            DisplayBoard(gameInstance, currentPlayerName, playerX, playerO);
+
+            if (gameInstance.SaveTheGame())
+            {
+                _gameRepository.Savegame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
+                break;
+            }
+
+            // Attempt to make a move
+            if (!gameInstance.MakeAMove())
+            {
+                Console.WriteLine("Invalid move. Try again.");
+                continue; // Retry if the move was invalid
+            }
+
+            // Check if the game has ended
+            if (CheckEndGameConditions(gameInstance, playerX, playerO))
+            {
+                break; // Exit the loop if the game has ended
+            }
+
+            // Switch players
+            currentPlayerName = currentPlayerName == playerX ? playerO : playerX;
+
+        } while (true); // Repeat until the game ends
+
+        var menus = new Menus();
+        menus.RunMainMenu();
+    }
+
     
     private void DisplayBoard(TicTacTwoBrain gameInstance, string currentPlayerName, string playerX, string playerO)
     {
