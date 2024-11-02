@@ -12,7 +12,7 @@ public class Program
     public static void Main(string[] args)
     {
         // Muutuja salvestusmeetodi valimiseks
-        bool useDatabase = true; // Määra see `false`, kui soovid kasutada JSON-i
+        bool useDatabase = false; // Määra see `false`, kui soovid kasutada JSON-i
 
         // Defineeri IGameRepository ja IConfigRepository
         IGameRepository gameRepository;

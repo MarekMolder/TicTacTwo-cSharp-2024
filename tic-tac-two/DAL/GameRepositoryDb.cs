@@ -63,18 +63,19 @@ public class GameRepositoryDb : IGameRepository
 
     public string? FindSavedGame(string gameName)
     {
+        // Eemaldame ajatempliosa, et otsida ainult konfiguratsiooninime alusel
+        var configName = gameName.Split('_')[0];
+
         var savedGame = _context.SaveGames
             .Include(sg => sg.GameConfiguration)
             .OrderByDescending(sg => sg.CreatedAtDateTime)
-            .FirstOrDefault(sg => sg.GameConfiguration != null && sg.GameConfiguration.Name == gameName);
+            .FirstOrDefault(sg => sg.GameConfiguration != null && sg.GameConfiguration.Name == configName);
 
         if (savedGame == null)
         {
             Console.WriteLine($"No saved game found with the name '{gameName}'.");
             return null;
         }
-
-        Console.WriteLine($"Found saved game with GameConfiguration.Name: '{savedGame.GameConfiguration!.Name}' and timestamp '{savedGame.CreatedAtDateTime}'");
         return savedGame.State;
     }
 }
