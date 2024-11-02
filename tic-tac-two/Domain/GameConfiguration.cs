@@ -1,10 +1,15 @@
-﻿namespace GameBrain;
+﻿using Domain;
+
+namespace GameBrain;
 
 /// <summary>
 /// Represents the configuration settings for a game.
 /// </summary>
-public record struct GameConfiguration()
+public record GameConfiguration()
 {
+    // Primary key
+    public int Id {get ; set; }
+    
     /// <summary>
     /// Gets or sets the name of the game configuration.
     /// </summary>
@@ -69,13 +74,20 @@ public record struct GameConfiguration()
     /// Returns a string representation of the game configuration.
     /// </summary>
     /// <returns>A formatted string displaying the configuration settings.</returns>
+    
+    public ICollection<SaveGame>? SaveGames { get; set; }
+
+
     public override string ToString() =>
-        $"Name - {Name}" +
+        $"Id - {Id}" +
+        $"| Name - {Name}" +
         $"| Board {BoardSizeWidth}x{BoardSizeHeight} " +
         $"| Uses grid {UsesGrid} " +
         $"| Grid {GridSizeWidth}x{GridSizeHeight} " +
         $"| Grid position: {GridPositionX},{GridPositionY} " +
         $"| To win: {WinCondition} " +
         $"| Can move pieces after {MovePieceAfterNMove} moves " +
-        $"| Can move grid after {MoveGridAfterNMove} moves ";
+        $"| Can move grid after {MoveGridAfterNMove} moves " +
+        $"| Games: {SaveGames?.Count} ";
+
 }

@@ -10,6 +10,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameBrain", "GameBrain\Game
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{40B356E3-3E98-461B-9B2E-E794C05133FE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "!Solution items", "!Solution items", "{F5440E35-B96F-4361-804B-E28DC71EE624}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\cSharpProov\tic-tac-toe\Directory.Build.props = ..\..\..\cSharpProov\tic-tac-toe\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{D0F45C50-6E31-4E83-A261-E30325F0A231}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +43,9 @@ Global
 		{40B356E3-3E98-461B-9B2E-E794C05133FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40B356E3-3E98-461B-9B2E-E794C05133FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40B356E3-3E98-461B-9B2E-E794C05133FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0F45C50-6E31-4E83-A261-E30325F0A231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0F45C50-6E31-4E83-A261-E30325F0A231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0F45C50-6E31-4E83-A261-E30325F0A231}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0F45C50-6E31-4E83-A261-E30325F0A231}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

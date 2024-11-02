@@ -2,11 +2,13 @@
 
 public static class FileHelper
 {
-    public static string _basePath = Environment
+    public static string BasePath = Environment
                                             .GetFolderPath(Environment.SpecialFolder.UserProfile)
-                                        + System.IO.Path.DirectorySeparatorChar + "tic-tac-two";
+                                        + System.IO.Path.DirectorySeparatorChar + "tic-tac-two" + Path.DirectorySeparatorChar;
     
     public static string ConfigExtension = ".config.json";
     
     public static string GameExtension = ".game.json";
+    
+    
 }

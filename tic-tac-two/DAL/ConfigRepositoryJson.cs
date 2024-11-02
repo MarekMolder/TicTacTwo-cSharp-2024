@@ -11,7 +11,7 @@ public List<string> GetConfigurationNames()
     
     // Get all JSON configuration files in the directory without .config.json extension
     return System.IO.Directory
-        .GetFiles(FileHelper._basePath, "*" + FileHelper.ConfigExtension)
+        .GetFiles(FileHelper.BasePath, "*" + FileHelper.ConfigExtension)
         .Select(filePath => System.IO.Path.GetFileName(filePath)
             .Replace(FileHelper.ConfigExtension, "")) // Remove the .config.json part
         .ToList();
@@ -20,7 +20,7 @@ public List<string> GetConfigurationNames()
 public GameConfiguration GetConfigurationByName(string name)
 {
     // Construct the full path of the config file
-    var filePath = System.IO.Path.Combine(FileHelper._basePath, $"{name}" + FileHelper.ConfigExtension);
+    var filePath = System.IO.Path.Combine(FileHelper.BasePath, $"{name}" + FileHelper.ConfigExtension);
 
     if (!System.IO.File.Exists(filePath))
     {
@@ -35,13 +35,13 @@ public GameConfiguration GetConfigurationByName(string name)
 private void CheckAndCreateInitialConfig()
 {
     // Ensure the directory exists
-    if (!System.IO.Directory.Exists(FileHelper._basePath))
+    if (!System.IO.Directory.Exists(FileHelper.BasePath))
     {
-        System.IO.Directory.CreateDirectory(FileHelper._basePath);
+        System.IO.Directory.CreateDirectory(FileHelper.BasePath);
     }
 
     // Check if there are any .config.json files
-    var configFiles = System.IO.Directory.GetFiles(FileHelper._basePath, "*" + FileHelper.ConfigExtension).ToList();
+    var configFiles = System.IO.Directory.GetFiles(FileHelper.BasePath, "*" + FileHelper.ConfigExtension).ToList();
     
     // If no configuration files exist, create them from hardcoded defaults
     if (configFiles.Count == 0)
@@ -55,7 +55,7 @@ private void CheckAndCreateInitialConfig()
             var optionJsonStr = System.Text.Json.JsonSerializer.Serialize(gameOption);
             
             // Correctly construct the file path and write the configuration to the file
-            var filePath = System.IO.Path.Combine(FileHelper._basePath, $"{gameOption.Name}" + FileHelper.ConfigExtension);
+            var filePath = System.IO.Path.Combine(FileHelper.BasePath, $"{gameOption.Name}" + FileHelper.ConfigExtension);
             System.IO.File.WriteAllText(filePath, optionJsonStr);
         }
     }

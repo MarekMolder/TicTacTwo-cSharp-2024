@@ -174,7 +174,6 @@ public void SetGameBoard(EGamePiece[][] gameBoard)
             // Handle the player's choice based on their input.
             if (response == "yes")
             {
-                //TODO: SAVE THE GAME
                 return true;
             }
 

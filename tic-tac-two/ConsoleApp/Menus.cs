@@ -10,13 +10,14 @@ namespace ConsoleApp;
 /// </summary>
 public class Menus
 {
-    private readonly IConfigRepository _configRepository;
     private readonly IGameRepository _gameRepository;
+    private readonly IConfigRepository _configRepository;
 
-    public Menus()
+    // Konstruktor võtab vastu IConfigRepository ja IGameRepository sõltuvused
+    public Menus(IConfigRepository configRepository, IGameRepository gameRepository)
     {
-        _configRepository = new ConcreteConfigRepositoryJson(); //TODO: SIIN SAAD VAHETADA HARDCODED jsonI VASTU
-        _gameRepository = new GameRepositoryJson();
+        _configRepository = configRepository;
+        _gameRepository = gameRepository;
     }
     
     
@@ -81,9 +82,9 @@ public class Menus
     /// <param name="gameConfig">The game configuration to use for the new game.</param>
     private void StartGame(GameConfiguration gameConfig)
     {
-        // Prompt the user to input player names and start the game
         var (playerX, playerO) = CustomInput.InputPlayerNames();
-        new ConsoleApp.GameController().NewGame(gameConfig, playerX, playerO);
+        var gameController = new GameController(_gameRepository, _configRepository);
+        gameController.NewGame(gameConfig, playerX, playerO);
     }
 
     /// <summary>
@@ -91,45 +92,66 @@ public class Menus
     /// </summary>
     private void StartCustomGame()
     {
-        // Get the custom configuration and player names, then start the game
+        // Küsib kasutajalt kohandatud konfiguratsiooni ja mängijate nimed
         var customConfig = CustomInput.InputCustomConfiguration();
         var (playerX, playerO) = CustomInput.InputPlayerNames();
-        new ConsoleApp.GameController().NewGame(customConfig, playerX, playerO);
+
+        // Loo GameController, andes edasi _gameRepository ja _configRepository
+        var gameController = new GameController(_gameRepository, _configRepository);
+    
+        // Alusta uut mängu kohandatud konfiguratsiooniga
+        gameController.NewGame(customConfig, playerX, playerO);
     }
 
     private void LoadGame()
     {
         const string prompt = "Select a saved game to load:";
-        var savedGames = System.IO.Directory.GetFiles(FileHelper._basePath, $"*{FileHelper.GameExtension}");
+        var savedGameNames = _gameRepository.GetSavedGameNames();
 
-        if (savedGames.Length == 0)
+        if (savedGameNames.Count == 0)
         {
             Console.WriteLine("No saved games available to load.");
             RunMainMenu();
             return;
         }
 
-        var options = savedGames.Select(filePath =>
-        {
-            var gameName = System.IO.Path.GetFileNameWithoutExtension(filePath);
-            return new Option(gameName, $"Load the game '{gameName}'", () => LoadSavedGame(filePath));
-        }).ToList();
+        var options = savedGameNames.Select(gameName =>
+            new Option(gameName, $"Load the game '{gameName}'", () => LoadSavedGame(gameName))
+        ).ToList();
 
         options.Add(new Option("Return", "Return to the main menu.", RunMainMenu));
         options.Add(new Option("Exit", "Exit the game application.", ExitGame));
 
         new Menu(prompt, options).Run();
     }
-    
-    private void LoadSavedGame(string filePath)
-    {
-        // Read the JSON state from the saved game file
-        string jsonState = System.IO.File.ReadAllText(filePath);
 
-        // Deserialize the game state
+    private void LoadSavedGame(string gameName)
+    {
+        var savedGameContent = _gameRepository.FindSavedGame(gameName);
+
+        if (string.IsNullOrEmpty(savedGameContent))
+        {
+            Console.WriteLine($"No saved game found with the name '{gameName}'.");
+            return;
+        }
+
+        string jsonState;
+
+        // Kontrollime, kas salvestusmeetod on failipõhine või andmebaasipõhine
+        if (File.Exists(savedGameContent))
+        {
+            // Kui kasutame JSON-i, siis loeme sisu failist
+            jsonState = File.ReadAllText(savedGameContent);
+        }
+        else
+        {
+            // Kui kasutame andmebaasi, siis võtame sisu otse stringist
+            jsonState = savedGameContent;
+        }
+
         var gameState = JsonSerializer.Deserialize<GameState>(jsonState);
 
-        // Load all the necessary properties from the saved game state
+        // Laaditud mängu omaduste määramine
         EGamePiece[][] gameBoard = gameState.GameBoard;
         GameConfiguration gameConfig = gameState.GameConfiguration;
         EGamePiece currentPlayer = gameState.CurrentPlayer;
@@ -137,14 +159,15 @@ public class Menus
         int piecesLeftO = gameState.PiecesLeftO;
         int movesMadeX = gameState.MovesMadeX;
         int movesMadeO = gameState.MovesMadeO;
-        string playerX = gameState.PlayerX ?? "Player X";  // Default value if null
-        string playerO = gameState.PlayerO ?? "Player O";  // Default value if null
+        string playerX = gameState.PlayerX ?? "Player X";
+        string playerO = gameState.PlayerO ?? "Player O";
         int gridPositionX = gameState.GridPositionX;
         int gridPositionY = gameState.GridPositionY;
 
-        // Pass the loaded game state to OldGame to continue the game
-        new ConsoleApp.GameController().OldGame(gameBoard, gameConfig, currentPlayer, piecesLeftX, piecesLeftO, movesMadeX, movesMadeO, playerX, playerO, gridPositionX, gridPositionY);
+        var gameController = new GameController(_gameRepository, _configRepository);
+        gameController.OldGame(gameBoard, gameConfig, currentPlayer, piecesLeftX, piecesLeftO, movesMadeX, movesMadeO, playerX, playerO, gridPositionX, gridPositionY);
     }
+
 
 
     /// <summary>
