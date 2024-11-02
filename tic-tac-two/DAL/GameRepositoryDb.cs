@@ -15,16 +15,25 @@ public class GameRepositoryDb : IGameRepository
         _context = context;
     }
     
-    public void Savegame(string jsonStateString, string gameConfigName)
+    public void Savegame(string jsonStateString, GameConfiguration gameConfig)
     {
-        var gameConfig = _context.GameConfigurations
-            .FirstOrDefault(gc => gc.Name == gameConfigName);
+        // Check if the configuration exists in the database by name
+        var existingConfig = _context.GameConfigurations
+            .FirstOrDefault(gc => gc.Name == gameConfig.Name);
 
-        if (gameConfig == null)
+        // If the configuration doesn't exist, create and add it
+        if (existingConfig == null)
         {
-            throw new Exception("Game configuration not found");
+            _context.GameConfigurations.Add(gameConfig);
+            _context.SaveChanges(); // Save the new configuration to generate its ID
+        }
+        else
+        {
+            // Use the existing configuration's ID if it already exists
+            gameConfig = existingConfig;
         }
 
+        // Create and save the SaveGame entry
         var saveGame = new SaveGame
         {
             CreatedAtDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -34,7 +43,6 @@ public class GameRepositoryDb : IGameRepository
 
         _context.SaveGames.Add(saveGame);
         _context.SaveChanges();
-        
     }
 
     public GameState LoadGame(string gameConfigName)

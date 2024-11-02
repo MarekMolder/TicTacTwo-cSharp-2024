@@ -28,7 +28,7 @@ public class GameController
 
             if (gameInstance.SaveTheGame())
             {
-                _gameRepository.Savegame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
+                _gameRepository.Savegame(gameInstance.GetGameStateJson(), chosenConfig);
                 break;
             }
             
@@ -67,7 +67,7 @@ public class GameController
 
             if (gameInstance.SaveTheGame())
             {
-                _gameRepository.Savegame(gameInstance.GetGameStateJson(), gameInstance.GetGameConfigName());
+                _gameRepository.Savegame(gameInstance.GetGameStateJson(), gameConfig);
                 break;
             }
             

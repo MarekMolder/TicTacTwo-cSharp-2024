@@ -5,10 +5,10 @@ namespace DAL;
 
 public class GameRepositoryJson : IGameRepository
 {
-    public void Savegame(string jsonStateString, string gameConfigName)
+    public void Savegame(string jsonStateString, GameConfiguration gameConfig)
     {
-        // Ensure gameConfigName is sanitized for file naming
-        string sanitizedGameConfigName = string.Join("_", gameConfigName.Split(Path.GetInvalidFileNameChars()));
+        // Ensure gameConfig.Name is sanitized for file naming
+        string sanitizedGameConfigName = string.Join("_", gameConfig.Name.Split(Path.GetInvalidFileNameChars()));
 
         // Replace colons in the timestamp for compatibility with file names
         string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
