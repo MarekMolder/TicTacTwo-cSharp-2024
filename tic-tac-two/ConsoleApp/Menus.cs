@@ -13,13 +13,16 @@ public class Menus
     private readonly IGameRepository _gameRepository;
     private readonly IConfigRepository _configRepository;
 
-    // Konstruktor võtab vastu IConfigRepository ja IGameRepository sõltuvused
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Menus"/> class.
+    /// </summary>
+    /// <param name="configRepository">The repository for game configurations.</param>
+    /// <param name="gameRepository">The repository for game data.</param>
     public Menus(IConfigRepository configRepository, IGameRepository gameRepository)
     {
         _configRepository = configRepository;
         _gameRepository = gameRepository;
     }
-    
     
     /// <summary>
     /// Displays the main menu of the game and allows the user to select an option.
@@ -103,6 +106,9 @@ public class Menus
         gameController.NewGame(customConfig, playerX, playerO);
     }
 
+    /// <summary>
+    /// Displays the saved games and allows the user to select a game to load.
+    /// </summary>
     private void LoadGame()
     {
         const string prompt = "Select a saved game to load:";
@@ -125,6 +131,10 @@ public class Menus
         new Menu(prompt, options).Run();
     }
 
+    /// <summary>
+    /// Loads the selected saved game from the repository and restores the game state.
+    /// </summary>
+    /// <param name="gameName">The name of the saved game to load.</param>
     private void LoadSavedGame(string gameName)
     {
         var savedGameContent = _gameRepository.FindSavedGame(gameName);
@@ -136,22 +146,21 @@ public class Menus
         }
 
         string jsonState;
-
-        // Kontrollime, kas salvestusmeetod on failipõhine või andmebaasipõhine
+        
         if (File.Exists(savedGameContent))
         {
-            // Kui kasutame JSON-i, siis loeme sisu failist
+            // If using JSON, read the content from the file
             jsonState = File.ReadAllText(savedGameContent);
         }
         else
         {
-            // Kui kasutame andmebaasi, siis võtame sisu otse stringist
+            // If using a database, retrieve the content directly
             jsonState = savedGameContent;
         }
 
         var gameState = JsonSerializer.Deserialize<GameState>(jsonState);
 
-        // Laaditud mängu omaduste määramine
+        // Restore game properties from the loaded state
         EGamePiece[][] gameBoard = gameState.GameBoard;
         GameConfiguration gameConfig = gameState.GameConfiguration;
         EGamePiece currentPlayer = gameState.CurrentPlayer;
@@ -167,9 +176,7 @@ public class Menus
         var gameController = new GameController(_gameRepository, _configRepository);
         gameController.OldGame(gameBoard, gameConfig, currentPlayer, piecesLeftX, piecesLeftO, movesMadeX, movesMadeO, playerX, playerO, gridPositionX, gridPositionY);
     }
-
-
-
+    
     /// <summary>
     /// Displays the game instructions to the user.
     /// </summary>

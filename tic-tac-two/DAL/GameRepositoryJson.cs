@@ -3,8 +3,16 @@ using GameBrain;
 
 namespace DAL;
 
+/// <summary>
+/// A repository implementation for saving, loading, and managing game data stored in JSON files.
+/// </summary>
 public class GameRepositoryJson : IGameRepository
 {
+    /// <summary>
+    /// Saves the game state as a JSON string to a file.
+    /// </summary>
+    /// <param name="jsonStateString">The JSON string representing the game state.</param>
+    /// <param name="gameConfig">The game configuration associated with the saved game.</param>
     public void Savegame(string jsonStateString, GameConfiguration gameConfig)
     {
         // Ensure gameConfig.Name is sanitized for file naming
@@ -17,6 +25,7 @@ public class GameRepositoryJson : IGameRepository
 
         try
         {
+            // Write the JSON string to a file
             System.IO.File.WriteAllText(fileName, jsonStateString);
         }
         catch (Exception ex)
@@ -26,12 +35,23 @@ public class GameRepositoryJson : IGameRepository
         }
     }
     
+    /// <summary>
+    /// Finds a saved game by its name.
+    /// </summary>
+    /// <param name="gameName">The name of the saved game to find.</param>
+    /// <returns>The file path of the saved game if found; otherwise, null.</returns>
     public string? FindSavedGame(string gameName)
     {
         var files = Directory.GetFiles(FileHelper.BasePath, $"*{FileHelper.GameExtension}");
         return files.FirstOrDefault(filePath => Path.GetFileNameWithoutExtension(filePath).StartsWith(gameName));
     }
     
+    /// <summary>
+    /// Loads the game state from a JSON file.
+    /// </summary>
+    /// <param name="filePath">The path to the saved game file.</param>
+    /// <returns>A <see cref="GameState"/> object representing the saved game state.</returns>
+    /// <exception cref="FileNotFoundException">Thrown if the file at the specified path does not exist.</exception>
     public GameState LoadGame(string filePath)
     {
         if (!File.Exists(filePath))
@@ -39,17 +59,21 @@ public class GameRepositoryJson : IGameRepository
             throw new FileNotFoundException($"Saved game not found at {filePath}.");
         }
 
-        // Loeme faili sisu ja deserialiseerime GameState objektiks
+        // Read the file content and deserialize it into a GameState object
         var jsonState = File.ReadAllText(filePath);
         return JsonSerializer.Deserialize<GameState>(jsonState);
     }
     
+    /// <summary>
+    /// Retrieves a list of all saved game names (without extensions).
+    /// </summary>
+    /// <returns>A list of saved game names.</returns>
     public List<string> GetSavedGameNames()
     {
-        // Otsi kõiki mängufaile kindlast kataloogist
+        // Search for all game files in the specified directory
         var files = Directory.GetFiles(FileHelper.BasePath, $"*{FileHelper.GameExtension}");
         
-        // Tagasta failinimed ilma laiendita
+        // Return the file names without extensions
         return files.Select(filePath => Path.GetFileNameWithoutExtension(filePath)).ToList();
     }
     

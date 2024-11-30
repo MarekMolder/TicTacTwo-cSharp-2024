@@ -1,8 +1,22 @@
 ﻿namespace GameBrain;
 
+/// <summary>
+/// Represents the possible game pieces in the game.
+/// </summary>
 public enum EGamePiece
 {
-    Empty, // 0
-    X, // 1
-    O // 2
+    /// <summary>
+    /// Represents an empty space on the game board.
+    /// </summary>
+    Empty,
+    
+    /// <summary>
+    /// Represents the game piece for player X.
+    /// </summary>
+    X, 
+    
+    /// <summary>
+    /// Represents the game piece for player O.
+    /// </summary>
+    O 
 }

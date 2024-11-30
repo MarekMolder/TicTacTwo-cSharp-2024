@@ -4,6 +4,7 @@ namespace MenuSystem
 {
     /// <summary>
     /// Represents a menu that can display options and execute corresponding actions.
+    /// This class manages the display of the menu, handles user input, and invokes actions based on the user's selection.
     /// </summary>
     public class Menu
     {
@@ -17,12 +18,13 @@ namespace MenuSystem
         /// <param name="options">The list of menu options.</param>
         public Menu(string prompt, List<Option> options)
         {
-            this.prompt = prompt; // Assigning the prompt
-            this.options = options; // Assigning the options
+            this.prompt = prompt;
+            this.options = options;
         }
 
         /// <summary>
-        /// Runs the menu by displaying it and executing the selected option.
+        /// Displays the menu to the user and executes the action associated with the selected option.
+        /// This method combines displaying the menu and handling the user's selection.
         /// </summary>
         public void Run()
         {
@@ -31,7 +33,8 @@ namespace MenuSystem
         }
 
         /// <summary>
-        /// Displays the menu and returns the index of the selected option.
+        /// Displays the menu with available options and returns the index of the selected option.
+        /// This method also handles user input through a ConsoleMenuHandler to capture the user's choice.
         /// </summary>
         /// <returns>The index of the selected option.</returns>
         private int DisplayMenu()
@@ -43,7 +46,8 @@ namespace MenuSystem
         }
 
         /// <summary>
-        /// Executes the action associated with the selected menu option.
+        /// Executes the action associated with the selected menu option, if the index is valid.
+        /// This method ensures the index is within the bounds of the options list before invoking the action.
         /// </summary>
         /// <param name="selectedIndex">The index of the selected option.</param>
         private void ExecuteOption(int selectedIndex)

@@ -4,10 +4,14 @@ namespace GameBrain;
 
 /// <summary>
 /// Represents the configuration settings for a game.
+/// This includes the board size, piece settings, grid usage, and other game parameters.
 /// </summary>
 public record GameConfiguration()
 {
     // Primary key
+    /// <summary>
+    /// Gets or sets the unique identifier for the game configuration.
+    /// </summary>
     public int Id {get ; set; }
     
     /// <summary>
@@ -71,13 +75,14 @@ public record GameConfiguration()
     public int GridPositionY { get; set; }
 
     /// <summary>
-    /// Returns a string representation of the game configuration.
+    /// Gets or sets the collection of saved games associated with this game configuration.
     /// </summary>
-    /// <returns>A formatted string displaying the configuration settings.</returns>
-    
     public ICollection<SaveGame>? SaveGames { get; set; }
 
-
+    /// <summary>
+    /// Returns a string representation of the game configuration.
+    /// </summary>
+    /// <returns>A formatted string displaying the configuration settings, including board dimensions, grid information, win condition, and other details.</returns>
     public override string ToString() =>
         $"Id - {Id}" +
         $"| Name - {Name}" +

@@ -12,6 +12,7 @@ public class CustomInput
     /// <summary>
     /// Prompts the user to enter names for both players (Player X and Player O).
     /// Validates that the names are not empty and that they are different from each other.
+    /// If the names are invalid, the user will be prompted to re-enter them.
     /// </summary>
     /// <returns>A tuple containing the names of Player X and Player O.</returns>
     public static (string playerX, string playerO) InputPlayerNames()
@@ -24,6 +25,7 @@ public class CustomInput
     /// <summary>
     /// Prompts the user to enter a valid player name.
     /// Validates that the name is not empty and, if provided, is different from the other player's name.
+    /// If the name is invalid, the user will be prompted to re-enter it.
     /// </summary>
     /// <param name="playerLabel">The label for the player (e.g., "Player X").</param>
     /// <param name="otherPlayerName">The name of the other player, if applicable.</param>
@@ -54,7 +56,8 @@ public class CustomInput
 
     /// <summary>
     /// Prompts the user for custom game configuration settings.
-    /// Validates all inputs and returns a GameConfiguration object with the specified settings.
+    /// Validates all inputs (e.g., board dimensions, number of pieces, win condition, grid settings) 
+    /// and returns a GameConfiguration object with the specified settings.
     /// </summary>
     /// <returns>A GameConfiguration object containing the custom game settings.</returns>
     public static GameConfiguration InputCustomConfiguration()
@@ -74,8 +77,9 @@ public class CustomInput
         // If grid is used, prompt for grid dimensions and position
         if (usesGrid)
         {
-            gridWidth = GetGridDimensions("width", boardWidth);
-            gridHeight = GetGridDimensions("height", boardHeight);
+            gridWidth = GetValidatedInput($"Enter grid width (min 2, max {boardWidth}): ", 2, boardWidth);
+            gridHeight = GetValidatedInput($"Enter grid height (min 2, max {boardHeight}): ", 2, boardHeight);
+            
             moveGridAfterNMove = GetValidatedInput("After number of steps, you can move grid: ", 0, null); // No upper limit
             (gridPositionX, gridPositionY) = GetGridPosition(gridWidth, gridHeight, boardWidth, boardHeight);
         }
@@ -100,6 +104,7 @@ public class CustomInput
 
     /// <summary>
     /// Prompts the user for confirmation with a yes or no question.
+    /// If the user provides an invalid response, they will be asked again.
     /// </summary>
     /// <param name="prompt">The question to ask the user.</param>
     /// <returns>True if the user answers "yes", false if "no".</returns>
@@ -109,25 +114,15 @@ public class CustomInput
         {
             Console.Write(prompt);
             string input = Console.ReadLine()?.Trim().ToLower();
-            if (input == "yes") return true; // Return true for yes
-            if (input == "no") return false; // Return false for no
+            if (input == "yes") return true;
+            if (input == "no") return false;
             Console.WriteLine("Invalid input. Please enter 'yes' or 'no'.");
         }
     }
-
-    /// <summary>
-    /// Prompts the user to enter the dimensions for the grid and validates the input.
-    /// </summary>
-    /// <param name="dimension">The dimension type (e.g., "width" or "height").</param>
-    /// <param name="maxDimension">The maximum allowed value for the dimension.</param>
-    /// <returns>The validated dimension value.</returns>
-    private static int GetGridDimensions(string dimension, int maxDimension)
-    {
-        return GetValidatedInput($"Enter grid {dimension} (min 2, max {maxDimension}): ", 2, maxDimension);
-    }
-
+    
     /// <summary>
     /// Prompts the user to enter the position for the grid and validates the input.
+    /// Ensures the grid's position does not exceed the board's dimensions.
     /// </summary>
     /// <param name="gridWidth">The width of the grid.</param>
     /// <param name="gridHeight">The height of the grid.</param>
@@ -151,11 +146,12 @@ public class CustomInput
             Console.ReadKey();
             Console.Clear();
         }
-        return (gridPositionX, gridPositionY); // Return the valid grid position
+        return (gridPositionX, gridPositionY);
     }
 
     /// <summary>
     /// Checks if the specified grid position is valid within the board dimensions.
+    /// Ensures that the grid fits within the board without overflowing its edges.
     /// </summary>
     /// <param name="x">The X coordinate of the grid position.</param>
     /// <param name="y">The Y coordinate of the grid position.</param>
@@ -171,6 +167,8 @@ public class CustomInput
 
     /// <summary>
     /// Prompts the user for a validated integer input within specified bounds.
+    /// Ensures the entered value is within the provided minimum and maximum range.
+    /// If the input is invalid, the user will be prompted again.
     /// </summary>
     /// <param name="prompt">The prompt to display to the user.</param>
     /// <param name="minValue">The minimum acceptable value.</param>
@@ -183,20 +181,11 @@ public class CustomInput
             Console.Write(prompt);
             if (int.TryParse(Console.ReadLine(), out int value) && value >= minValue && (maxValue == null || value <= maxValue))
             {
-                return value; // Return the valid input
+                return value;
             }
             Console.WriteLine(maxValue == null
                 ? $"Invalid input. Please enter a number greater than or equal to {minValue}."
                 : $"Invalid input. Please enter a number between {minValue} and {maxValue}.");
         }
-    }
-    
-    
-    /// <summary>
-    /// Loads a previously saved game. (Implement this method as needed.)
-    /// </summary>
-    public static void LoadGame()
-    {
-        // Implement load game logic here
     }
 }

@@ -21,11 +21,11 @@
         public Action Action { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Option"/> class.
+        /// Initializes a new instance of the <see cref="Option"/> class with the specified text, description, and action.
         /// </summary>
-        /// <param name="text">The text to display for the option.</param>
-        /// <param name="description">The description of the option.</param>
-        /// <param name="action">The action to execute when this option is selected.</param>
+        /// <param name="text">The text to display for the option, shown to the user as the selectable menu option.</param>
+        /// <param name="description">The description of the option, providing additional context or details about the option.</param>
+        /// <param name="action">The action to execute when this option is selected. This should be a method or delegate to run when the option is chosen.</param>
         public Option(string text, string description, Action action)
         {
             Text = text; // Assign the display text for the option.
