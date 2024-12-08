@@ -22,7 +22,9 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     public AppDbContext CreateDbContext(string[] args)
     {
         // Define the connection string, using a SQLite database located at the specified base path
-        var connectionString = $"Data Source={FileHelper.BasePath}app.db";
+        var connectionString = "Data Source=<%location%>app.db";
+        connectionString = connectionString.Replace("<%location%>", FileHelper.BasePath);
+            //$"Data Source={FileHelper.BasePath}app.db";
         
         // Configure the DbContext options with SQLite, detailed error messages, and sensitive data logging
         var contextOptions = new DbContextOptionsBuilder<AppDbContext>()

@@ -1,0 +1,28 @@
+﻿@page
+@using GameBrain
+@model WebApp.Pages.Index
+
+<h1>Trips Traps Trull</h1>
+
+<p>Next move by: @Model.TicTacTwoBrain.CurrentPlayer</p>
+
+<table class="" border="1">
+    @for (int y = 0; y < Model.TicTacTwoBrain.DimensionY; y++)
+    {
+        <tr>
+            @for (int x = 0; x < Model.TicTacTwoBrain.DimensionX; x++)
+            {
+                <td>
+                    @if (@Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
+                    {
+                        @(Model.TicTacTwoBrain.GameBoard[x][y])
+                    }
+                    else
+                    {
+                        @(Model.TicTacTwoBrain.GameBoard[x][y])
+                    }
+                </td>
+            }
+        </tr>
+    }
+</table>

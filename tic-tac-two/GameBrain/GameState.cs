@@ -1,4 +1,6 @@
-﻿namespace GameBrain;
+﻿using Domain;
+
+namespace GameBrain;
 
 /// <summary>
 /// Represents the state of the game, including the game board, players, and various game configurations.

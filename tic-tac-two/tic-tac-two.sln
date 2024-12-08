@@ -13,9 +13,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "!Solution items", "!Solution items", "{F5440E35-B96F-4361-804B-E28DC71EE624}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\..\cSharpProov\tic-tac-toe\Directory.Build.props = ..\..\..\cSharpProov\tic-tac-toe\Directory.Build.props
+		..\.gitignore = ..\.gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{D0F45C50-6E31-4E83-A261-E30325F0A231}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csproj", "{965A5168-30FA-4E67-9D52-7831FCBA0A5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,5 +50,9 @@ Global
 		{D0F45C50-6E31-4E83-A261-E30325F0A231}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0F45C50-6E31-4E83-A261-E30325F0A231}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0F45C50-6E31-4E83-A261-E30325F0A231}.Release|Any CPU.Build.0 = Release|Any CPU
+		{965A5168-30FA-4E67-9D52-7831FCBA0A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{965A5168-30FA-4E67-9D52-7831FCBA0A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{965A5168-30FA-4E67-9D52-7831FCBA0A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{965A5168-30FA-4E67-9D52-7831FCBA0A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

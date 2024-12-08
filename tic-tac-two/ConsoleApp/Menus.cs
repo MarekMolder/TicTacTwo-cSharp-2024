@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using DAL;
+using Domain;
 using GameBrain;
 using MenuSystem;
 
@@ -59,7 +60,7 @@ public class Menus
     /// <summary>
     /// Displays the new game menu where the user can select the game configuration.
     /// </summary>
-    private void RunNewGameMenu()
+    public void RunNewGameMenu()
     {
         // Prompt for selecting a game configuration
         const string prompt = "To Start a New Game, select the game configuration:";
@@ -87,7 +88,7 @@ public class Menus
     {
         var (playerX, playerO) = CustomInput.InputPlayerNames();
         var gameController = new GameController(_gameRepository, _configRepository);
-        gameController.NewGame(gameConfig, playerX, playerO);
+        gameController.PlayGame(gameConfig, playerX, playerO);
     }
 
     /// <summary>
@@ -103,7 +104,7 @@ public class Menus
         var gameController = new GameController(_gameRepository, _configRepository);
     
         // Alusta uut mängu kohandatud konfiguratsiooniga
-        gameController.NewGame(customConfig, playerX, playerO);
+        gameController.PlayGame(customConfig, playerX, playerO);
     }
 
     /// <summary>
@@ -172,9 +173,10 @@ public class Menus
         string playerO = gameState.PlayerO ?? "Player O";
         int gridPositionX = gameState.GridPositionX;
         int gridPositionY = gameState.GridPositionY;
+        
 
         var gameController = new GameController(_gameRepository, _configRepository);
-        gameController.OldGame(gameBoard, gameConfig, currentPlayer, piecesLeftX, piecesLeftO, movesMadeX, movesMadeO, playerX, playerO, gridPositionX, gridPositionY);
+        gameController.PlayGame(gameConfig, playerX, playerO, gameBoard, currentPlayer, piecesLeftX, piecesLeftO, movesMadeX, movesMadeO, gridPositionX, gridPositionY);
     }
     
     /// <summary>

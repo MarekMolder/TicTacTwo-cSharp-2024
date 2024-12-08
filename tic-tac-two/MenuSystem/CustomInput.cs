@@ -1,5 +1,6 @@
 ﻿using System;
 using DAL;
+using Domain;
 using GameBrain;
 
 namespace MenuSystem;

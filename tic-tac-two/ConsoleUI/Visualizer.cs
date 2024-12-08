@@ -144,7 +144,7 @@ public class Visualizer
     /// </summary>
     /// <param name="piece">The game piece (either X or O).</param>
     /// <returns>A string representing the game piece.</returns>
-    private static string DrawGamePiece(EGamePiece piece) => 
+    public static string DrawGamePiece(EGamePiece piece) => 
         piece switch
         {
             EGamePiece.X => "X",

@@ -1,12 +1,12 @@
 ﻿using Domain;
 
-namespace GameBrain;
+namespace Domain;
 
 /// <summary>
 /// Represents the configuration settings for a game.
 /// This includes the board size, piece settings, grid usage, and other game parameters.
 /// </summary>
-public record GameConfiguration()
+public class GameConfiguration()
 {
     // Primary key
     /// <summary>
@@ -75,11 +75,6 @@ public record GameConfiguration()
     public int GridPositionY { get; set; }
 
     /// <summary>
-    /// Gets or sets the collection of saved games associated with this game configuration.
-    /// </summary>
-    public ICollection<SaveGame>? SaveGames { get; set; }
-
-    /// <summary>
     /// Returns a string representation of the game configuration.
     /// </summary>
     /// <returns>A formatted string displaying the configuration settings, including board dimensions, grid information, win condition, and other details.</returns>
@@ -92,7 +87,6 @@ public record GameConfiguration()
         $"| Grid position: {GridPositionX},{GridPositionY} " +
         $"| To win: {WinCondition} " +
         $"| Can move pieces after {MovePieceAfterNMove} moves " +
-        $"| Can move grid after {MoveGridAfterNMove} moves " +
-        $"| Games: {SaveGames?.Count} ";
+        $"| Can move grid after {MoveGridAfterNMove} moves ";
 
 }

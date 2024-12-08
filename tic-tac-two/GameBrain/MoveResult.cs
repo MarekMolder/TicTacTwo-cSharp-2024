@@ -5,18 +5,14 @@
 /// </summary>
 public enum MoveResult
 {
-    /// <summary>
-    /// Indicates that the game should continue after the move.
-    /// </summary>
-    Continue,
-    
-    /// <summary>
-    /// Indicates that the game should be saved after the move.
-    /// </summary>
+    HandleNoPiecesLeft,
+    HandlePlayerChoice,
+    SaveOrContinue,
+    PromptMovePieceOrGrid,
+    MoveExistingPiece,
+    MoveGrid,
+    PlaceNewPiece,
     SaveGame,
-    
-    /// <summary>
-    /// Indicates that the move was invalid and cannot be executed.
-    /// </summary>
-    InvalidMove
+    InvalidMove,
+    Continue
 }

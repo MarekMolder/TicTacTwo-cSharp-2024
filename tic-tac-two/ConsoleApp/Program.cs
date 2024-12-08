@@ -22,7 +22,7 @@ public class Program
     public static void Main(string[] args)
     {
         // Flag to select whether to use a database or JSON storage
-        bool useDatabase = true; // Set to `false` to use JSON instead of the database
+        bool useDatabase = false; // Set to `false` to use JSON instead of the database
 
         // Declare the repositories for game data and configuration data
         IGameRepository gameRepository;
@@ -62,7 +62,7 @@ public class Program
         // Run the main menu to interact with the application
         menus.RunMainMenu();
 
-        // Clean up the context resources when the application is done, if a database was used
+        // Clean up the context resources when the application is done, if a database was used 
         context?.Dispose();
     }
 }

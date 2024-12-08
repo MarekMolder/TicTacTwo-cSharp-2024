@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Domain;
 using GameBrain;
 
 namespace DAL;
@@ -33,6 +34,8 @@ public class GameRepositoryJson : IGameRepository
             // Handle exceptions (e.g., log the error or inform the user)
             Console.WriteLine($"An error occurred while saving the game: {ex.Message}");
         }
+
+        //return -1;
     }
     
     /// <summary>

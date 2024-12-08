@@ -1,4 +1,5 @@
-﻿using GameBrain;
+﻿using Domain;
+using GameBrain;
 
 namespace DAL;
 
@@ -42,7 +43,7 @@ public class ConfigRepositoryJson : IConfigRepository
 
         // Read the JSON content and deserialize it to GameConfiguration
         var jsonContent = System.IO.File.ReadAllText(filePath);
-        return System.Text.Json.JsonSerializer.Deserialize<GameConfiguration>(jsonContent);
+        return System.Text.Json.JsonSerializer.Deserialize<GameConfiguration>(jsonContent)!;
     }
 
     /// <summary>

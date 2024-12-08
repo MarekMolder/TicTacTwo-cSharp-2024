@@ -55,6 +55,8 @@ public class GameRepositoryDb : IGameRepository
 
         _context.SaveGames.Add(saveGame);
         _context.SaveChanges();
+        
+        //return saveGame.Id; 
     }
 
     /// <summary>

@@ -1,4 +1,6 @@
-﻿namespace GameBrain
+﻿using Domain;
+
+namespace GameBrain
 {
     /// <summary>
     /// The <see cref="TicTacTwoBrain"/> class represents the core game logic for a Tic-Tac-Toe game
@@ -7,7 +9,7 @@
     /// </summary>
     public class TicTacTwoBrain
     {
-        private readonly GameState _gameState;
+        private GameState _gameState;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="TicTacTwoBrain"/> class with the specified game configuration,
@@ -20,7 +22,7 @@
         /// <param name="gridPositionX">The initial X position for the grid (default is -1).</param>
         /// <param name="movesMadeX">The number of moves made by player X (default is 0).</param>
         /// <param name="movesMadeO">The number of moves made by player O (default is 0).</param>
-        public TicTacTwoBrain(GameConfiguration gameConfiguration, string playerX, string playerO,int gridPositionY = -1, int gridPositionX = -1, int movesMadeX = 0, int movesMadeO = 0)
+        public TicTacTwoBrain(GameConfiguration gameConfiguration, string playerX = "Player-X", string playerO = "Player-0",int gridPositionY = -1, int gridPositionX = -1, int movesMadeX = 0, int movesMadeO = 0)
         {
             var gameBoard = new EGamePiece[gameConfiguration.BoardSizeWidth][];
             for (var i = 0; i < gameBoard.Length; i++)
@@ -74,6 +76,15 @@
         public string GetGameConfigName()
         {
             return _gameState.GameConfiguration.Name;
+        }
+        
+        /// <summary>
+        /// Gets the name of the current game configuration.
+        /// </summary>
+        /// <returns>The name of the game configuration.</returns>
+        public GameConfiguration GetGameConfig()
+        {
+            return _gameState.GameConfiguration;
         }
 
         /// <summary>
@@ -236,36 +247,10 @@
         }
         
         /// <summary>
-        /// Makes a move for the current player and returns the result of the move.
-        /// </summary>
-        /// <returns>The result of the move.</returns>
-        public MoveResult MakeAMove()
-        {
-            var canMovePiece = CanMovePiece(); // Check if the player can move a piece.
-            var canMoveGrid = CanMoveGrid(); // Check if the player can move the grid.
-            var hasPiecesLeft = HasPiecesLeft(); // Check if the player has pieces left.
-
-            // If no pieces left, handle accordingly.
-            if (!hasPiecesLeft)
-            {
-                return HandleNoPiecesLeft(canMovePiece, canMoveGrid);
-            }
-
-            // If the player can move a piece or the grid, handle the player's choice.
-            if (canMovePiece || canMoveGrid)
-            {
-                return HandlePlayerChoice(canMovePiece, canMoveGrid);
-            }
-
-            // If the player cannot move existing pieces or the grid, place a new piece.
-            return SaveOrContinue();
-        }
-        
-        /// <summary>
         /// Checks if the current player has any remaining pieces to place.
         /// </summary>
         /// <returns>True if the current player has pieces left, otherwise false.</returns>
-        private bool HasPiecesLeft()
+        public bool HasPiecesLeft()
         {
             return _gameState.CurrentPlayer == EGamePiece.X ? _gameState.PiecesLeftX > 0 : _gameState.PiecesLeftO > 0;
         }
@@ -274,7 +259,7 @@
         /// Checks if the current player can move a piece based on the number of moves made.
         /// </summary>
         /// <returns>True if the player can move a piece, otherwise false.</returns>
-        private bool CanMovePiece()
+        public bool CanMovePiece()
         {
             var movesMade = _gameState.CurrentPlayer == EGamePiece.X ? _gameState.MovesMadeX :_gameState. MovesMadeO;
             return movesMade >= _gameState.GameConfiguration.MovePieceAfterNMove; // Check if the required moves have been made.
@@ -284,118 +269,18 @@
         /// Checks if the current player can move the grid based on the number of moves made.
         /// </summary>
         /// <returns>True if the player can move the grid, otherwise false.</returns>
-        private bool CanMoveGrid()
+        public bool CanMoveGrid()
         {
             var movesMade = _gameState.CurrentPlayer == EGamePiece.X ? _gameState.MovesMadeX : _gameState.MovesMadeO;
             return movesMade >= _gameState.GameConfiguration.MoveGridAfterNMove; // Check if the required moves have been made.
         }
         
-        /// <summary>
-        /// Handles the scenario where the current player has no pieces left. Based on what movements
-        /// are available (moving a piece, moving the grid, or saving the game), prompts the player accordingly.
-        /// </summary>
-        /// <param name="canMovePiece">Indicates if the player can move an existing piece.</param>
-        /// <param name="canMoveGrid">Indicates if the player can move the grid.</param>
-        /// <returns>
-        /// A <see cref="MoveResult"/> indicating the next step to take (continue, save game, etc.).
-        /// </returns>
-        private MoveResult HandleNoPiecesLeft(bool canMovePiece, bool canMoveGrid)
+        public bool PlaceNewPiece(int x, int y)
         {
-            // If both movements are possible, prompt the player.
-            if (canMovePiece && canMoveGrid)
-            {
-                Console.WriteLine("You have no pieces left. You can move an existing piece, move the grid or save the game.");
-                return PromptMovePieceOrGrid();
-            }
-
-            // If only moving a piece is possible, move it.
-            if (canMovePiece)
-            {
-                Console.WriteLine("You have no pieces left. You can move an existing piece or save the game.");
-                return MoveExistingPiece();
-            }
-
-            // If only moving the grid is possible, move it.
-            if (canMoveGrid)
-            {
-                Console.WriteLine("You have no pieces left. You can move the grid or save the game.");
-                return MoveGrid();
-            }
-
-            // If no valid moves, skip the player's turn.
-            Console.WriteLine("You have no valid moves. Your turn is skipped.");
-            SwitchPlayer();
-            return MoveResult.Continue;
-        }
-        
-        /// <summary>
-        /// Handles the player's choice of what action to take when they can move a piece or grid,
-        /// or place a new piece. The method prompts the player for their choice and executes the chosen action.
-        /// </summary>
-        /// <param name="canMovePiece">Indicates if the player can move an existing piece.</param>
-        /// <param name="canMoveGrid">Indicates if the player can move the grid.</param>
-        /// <returns>
-        /// A <see cref="MoveResult"/> indicating the result of the player's action (place new piece, move existing piece, move grid, or save game).
-        /// </returns>
-        private MoveResult HandlePlayerChoice(bool canMovePiece, bool canMoveGrid)
-        {
-            while (true)
-            {
-                // Prompt the player for their choice.
-                Console.WriteLine(
-                    $"Do you want to place a new piece{(canMovePiece ? ", move an existing piece" : "")}{(canMoveGrid ? ",  move the grid" : "")}, or save the game?");
-
-                var options = new List<string> { "new" }; // Default option.
-                if (canMovePiece) options.Add("old"); // Add option to move an existing piece.
-                if (canMoveGrid) options.Add("grid"); // Add option to move the grid.
-                options.Add("save"); // Add option to save the game
-
-                Console.WriteLine($"Options: {string.Join("/", options)}");
-                var response = Console.ReadLine()?.Trim().ToLower();
-
-                // Handle the player's choice based on their input.
-                if (response == "new")
-                {
-                    return PlaceNewPiece();
-                }
-
-                if (response == "old" && canMovePiece)
-                {
-                    return MoveExistingPiece();
-                }
-
-                if (response == "grid" && canMoveGrid)
-                {
-                    return MoveGrid();
-                }
-                
-                if (response == "save")
-                {
-                    return MoveResult.SaveGame;
-                }
-
-                Console.WriteLine("Invalid input. Please try again.");
-            }
-        }
-        
-        /// <summary>
-        /// Prompts the player for coordinates to place a new piece on the game board, validates
-        /// the placement, and updates the game state accordingly.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="MoveResult"/> indicating whether the move was successful, invalid, or the game was saved.
-        /// </returns>
-        private MoveResult PlaceNewPiece()
-        {
-            // Get coordinates from the player where they want to place their piece
-            var (x, y) = GetCoordinatesFromPlayer("Enter the coordinates where you want to place your piece <x,y>:");
-
             // Check if the chosen spot is already occupied
             if (_gameState.GameBoard[x][y] != EGamePiece.Empty)
             {
-                Console.WriteLine("Invalid move. The spot is already occupied.");
-                PauseBeforeContinue(); // Pause to allow the player to read the message
-                return MoveResult.InvalidMove; // Move was not successful
+                return false;
             }
 
             // Place the current player's piece on the board
@@ -407,39 +292,7 @@
             // Switch to the next player
             SwitchPlayer();
 
-            return MoveResult.Continue; // Move was successful
-        }
-        
-        /// <summary>
-        /// Asks the player if they want to place a new piece or save the game when no pieces are left.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="MoveResult"/> indicating whether the player opted to place a new piece or save the game.
-        /// </returns>
-        private MoveResult SaveOrContinue()
-        {
-            while (true)
-            {
-                Console.WriteLine("Do you want to place a new piece, or save the game?");
-                var options = new List<string> { "new" }; // Default option.
-                options.Add("save"); // Add option to move an existing piece.
-
-                Console.WriteLine($"Options: {string.Join("/", options)}");
-                var response = Console.ReadLine()?.Trim().ToLower();
-
-                // Handle the player's choice based on their input.
-                if (response == "new")
-                {
-                    return PlaceNewPiece();
-                }
-
-                if (response == "save")
-                {
-                    return MoveResult.SaveGame;
-                }
-
-                Console.WriteLine("Invalid input. Please try again.");
-            }
+            return true; // Move was successful
         }
         
         /// <summary>
@@ -449,31 +302,14 @@
         /// <returns>
         /// A <see cref="MoveResult"/> indicating the result of moving the piece (successful, invalid move, etc.).
         /// </returns>
-        private MoveResult MoveExistingPiece()
+        public bool MoveExistingPiece(int oldX, int oldY, int newX, int newY)
         {
-            // Get the coordinates of the piece the player wants to move
-            var (oldX, oldY) = GetCoordinatesFromPlayer("Enter the coordinates of the piece you want to move <x,y>:");
-
-            // Check if the selected piece belongs to the current player
-            if (_gameState.GameBoard[oldX][oldY] != _gameState.CurrentPlayer)
+            
+            if (_gameState.GameBoard[oldX][oldY] != _gameState.CurrentPlayer || _gameState.GameBoard[newX][newY] != EGamePiece.Empty)
             {
-                Console.WriteLine("Invalid selection. That is not your piece.");
-                PauseBeforeContinue(); // Pause to allow the player to read the message
-                return MoveResult.InvalidMove; // Move was not successful
+                return false;
             }
-
-            // Get the new coordinates where the player wants to move the piece
-            var (newX, newY) =
-                GetCoordinatesFromPlayer("Enter the new coordinates where you want to move the piece <x,y>:");
-
-            // Check if the destination spot is already occupied
-            if (_gameState.GameBoard[newX][newY] != EGamePiece.Empty)
-            {
-                Console.WriteLine("Invalid move. The spot is already occupied.");
-                PauseBeforeContinue(); // Pause to allow the player to read the message
-                return MoveResult.InvalidMove; // Move was not successful
-            }
-
+            
             // Move the piece to the new coordinates
             _gameState.GameBoard[newX][newY] = _gameState.CurrentPlayer;
 
@@ -483,7 +319,7 @@
             // Switch to the next player
             SwitchPlayer();
 
-            return MoveResult.Continue; // Move was successful
+            return true;
         }
         
         /// <summary>
@@ -492,17 +328,12 @@
         /// <returns>
         /// A <see cref="MoveResult"/> indicating the result of moving the grid (successful, invalid position, etc.).
         /// </returns>
-        private MoveResult MoveGrid()
+        public bool MoveGrid(int newGridX, int newGridY)
         {
-            // Get new coordinates for the grid from the player
-            var (newGridX, newGridY) = GetCoordinatesFromPlayer("Enter new coordinates for the grid <x,y>:");
-
             // Check if the new grid position is valid
             if (!IsValidGridPosition(newGridX, newGridY))
             {
-                Console.WriteLine("Invalid grid position. Please try again.");
-                PauseBeforeContinue(); // Pause to allow the player to read the message
-                return MoveResult.InvalidMove;; // Move was not successful
+                return false;
             }
 
             // Update the grid's position
@@ -511,7 +342,7 @@
 
             // Switch to the next player
             SwitchPlayer();
-            return MoveResult.Continue; // Move was successful
+            return true;
         }
         
         /// <summary>
@@ -550,55 +381,12 @@
         /// <summary>
         /// Switches the current player between X and O.
         /// </summary>
-        private void SwitchPlayer()
+        public void SwitchPlayer()
         {
             // Toggle the current player between X and O
             _gameState.CurrentPlayer = _gameState.CurrentPlayer == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
         }
         
-        /// <summary>
-        /// Prompts the player to enter coordinates for a move and validates them.
-        /// Continues prompting the user until valid coordinates are entered.
-        /// </summary>
-        /// <param name="prompt">The prompt message displayed to the player.</param>
-        /// <returns>
-        /// A tuple representing the coordinates (x, y) entered by the player.
-        /// </returns>
-        private (int x, int y) GetCoordinatesFromPlayer(string prompt)
-        {
-            while (true)
-            {
-                Console.WriteLine(prompt); // Display the prompt to the user
-                var input = Console.ReadLine(); // Read user input
-
-                // Attempt to parse the input into coordinates and check if they are within board limits
-                if (TryParseCoordinates(input, out int x, out int y) && IsWithinBoard(x, y))
-                {
-                    return (x, y); // Return the valid coordinates
-                }
-
-                Console.WriteLine(
-                    "Invalid input. Please enter valid coordinates within the board limits."); // Error message for invalid input
-            }
-        }
-        
-        /// <summary>
-        /// Attempts to parse the player's input into two integer coordinates (x, y).
-        /// </summary>
-        /// <param name="input">The raw input string from the player.</param>
-        /// <param name="x">The parsed x-coordinate.</param>
-        /// <param name="y">The parsed y-coordinate.</param>
-        /// <returns>
-        /// <c>true</c> if the input can be parsed successfully into two integers; otherwise, <c>false</c>.
-        /// </returns>
-        private bool TryParseCoordinates(string? input, out int x, out int y)
-        {
-            x = y = -1; // Initialize output coordinates
-            var parts = input?.Split(','); // Split input by comma
-            return parts != null && parts.Length == 2 // Check if there are two parts
-                                 && int.TryParse(parts[0], out x) // Try parsing the first part as x
-                                 && int.TryParse(parts[1], out y); // Try parsing the second part as y
-        }
         
         /// <summary>
         /// Checks if the given coordinates (x, y) are within the bounds of the game board.
@@ -608,54 +396,10 @@
         /// <returns>
         /// <c>true</c> if the coordinates are within the board's dimensions; otherwise, <c>false</c>.
         /// </returns>
-        private bool IsWithinBoard(int x, int y)
+        public bool IsWithinBoard(int x, int y)
         {
             // Validate the coordinates against the board's dimensions
             return x >= 0 && x < DimensionX && y >= 0 && y < DimensionY;
-        }
-        
-        /// <summary>
-        /// Pauses the game and waits for the player to press any key to continue.
-        /// Clears the console after a key is pressed.
-        /// </summary>
-        private void PauseBeforeContinue()
-        {
-            Console.WriteLine("Press any key to continue..."); // Prompt the user
-            Console.ReadKey(); // Wait for a key press
-            Console.Clear(); // Clear the console
-        }
-        
-        /// <summary>
-        /// Prompts the player to decide whether to move an existing piece, move the grid, or save the game.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="MoveResult"/> indicating the next action to take (move piece, move grid, save game).
-        /// </returns>
-        private MoveResult PromptMovePieceOrGrid()
-        {
-            while (true)
-            {
-                Console.WriteLine(
-                    "Do you want to move an existing piece (old), move the grid (grid) or save the game (save)? Options: old/grid/save");
-                var response = Console.ReadLine()?.Trim().ToLower(); // Read and normalize user input
-
-                if (response == "old")
-                {
-                    return MoveExistingPiece(); // Move an existing piece
-                }
-
-                if (response == "grid")
-                {
-                    return MoveGrid(); // Move the grid
-                }
-
-                if (response == "save")
-                {
-                    return MoveResult.SaveGame;
-                }
-
-                Console.WriteLine("Invalid input. Please try again."); // Error message for invalid input
-            }
         }
         
         /// <summary>
@@ -834,6 +578,10 @@
             // Check if the player has made enough moves and has no pieces left
             return movesMade >= _gameState.GameConfiguration.MovePieceAfterNMove && piecesLeft <= 0;
         }
-        
+
+        public void SetGameStateJson(string state)
+        {
+            _gameState = System.Text.Json.JsonSerializer.Deserialize<GameState>(state);
+        }
     }
 }
