@@ -1,4 +1,6 @@
-﻿# General
+﻿app.db
+
+# General
 .DS_Store
 .AppleDouble
 .LSOverride
