@@ -19,7 +19,7 @@ public class Program
     /// The entry point for the application. Sets up the repositories and launches the main menu.
     /// </summary>
     /// <param name="args">Command line arguments (not used in this application).</param>
-    public static void Main(string[] args)
+    public static void Main()
     {
         // Flag to select whether to use a database or JSON storage
         bool useDatabase = false; // Set to `false` to use JSON instead of the database

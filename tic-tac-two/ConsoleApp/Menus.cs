@@ -67,12 +67,21 @@ public class Menus
 
         // Retrieve configuration names and create corresponding menu options
         var configNames = _configRepository.GetConfigurationNames();
-        var options = configNames.Select(configName => 
-            new Option(configName, $"Start the {configName} game", () => StartGame(_configRepository.GetConfigurationByName(configName)))
-        ).ToList();
-
-        // Add options for custom configuration and returning to the main menu
-        options.Add(new Option("Custom", "Create a custom game configuration.", StartCustomGame));
+        
+        var options = configNames.Select(configName =>
+        {
+            // If the configuration is "Custom", trigger StartCustomGame
+            if (configName == "Custom")
+            {
+                return new Option(configName, $"Create a custom game configuration.", StartCustomGame);
+            }
+            else
+            {
+                // Otherwise, trigger StartGame
+                return new Option(configName, $"Start the {configName} game", () => StartGame(_configRepository.GetConfigurationByName(configName)));
+            }
+        }).ToList();
+        
         options.Add(new Option("Return", "Return to the main menu.", RunMainMenu));
         options.Add(new Option("Exit", "Exit the game application.", ExitGame));
 

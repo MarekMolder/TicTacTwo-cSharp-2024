@@ -31,7 +31,7 @@ public abstract class ConfigRepositoryHardCoded: IConfigRepository
 
         new GameConfiguration()
         {
-            Name = "Regular tic-tac-two", // Name of the configuration
+            Name = "Regular", // Name of the configuration
             BoardSizeWidth = 5, // Width of the game board
             BoardSizeHeight = 5, // Height of the game board
             PiecesNumber = 4, // Number of pieces available for each player
@@ -43,6 +43,11 @@ public abstract class ConfigRepositoryHardCoded: IConfigRepository
             MoveGridAfterNMove = 2, // Number of moves before the grid can be moved
             GridPositionX = 1, // X position of the grid
             GridPositionY = 1 // Y position of the grid
+        },
+        
+        new GameConfiguration()
+        {
+        Name = "Custom"
         }
     ];
 

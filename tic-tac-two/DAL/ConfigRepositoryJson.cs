@@ -33,6 +33,7 @@ public class ConfigRepositoryJson : IConfigRepository
     /// <exception cref="FileNotFoundException">Thrown if the configuration file is not found.</exception>
     public GameConfiguration GetConfigurationByName(string name)
     {
+        Console.WriteLine($"real: {name}");
         // Construct the full path of the config file
         var filePath = System.IO.Path.Combine(FileHelper.BasePath, $"{name}" + FileHelper.ConfigExtension);
 

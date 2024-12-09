@@ -27,7 +27,7 @@ public class GameRepositoryDb : IGameRepository
     /// </summary>
     /// <param name="jsonStateString">The JSON string representing the game state.</param>
     /// <param name="gameConfig">The game configuration associated with the saved game.</param>
-    public void Savegame(string jsonStateString, GameConfiguration gameConfig)
+    public int Savegame(string jsonStateString, GameConfiguration gameConfig)
     {
         // Check if the configuration exists in the database by name
         var existingConfig = _context.GameConfigurations
@@ -56,29 +56,26 @@ public class GameRepositoryDb : IGameRepository
         _context.SaveGames.Add(saveGame);
         _context.SaveChanges();
         
-        //return saveGame.Id; 
+        return saveGame.Id; 
     }
 
     /// <summary>
-    /// Loads a saved game from the database based on the configuration name.
+    /// Loads a saved game from the database based on the game ID.
     /// </summary>
-    /// <param name="gameConfigName">The name of the game configuration whose saved game should be loaded.</param>
-    /// <returns>A <see cref="GameState"/> object representing the saved game state.</returns>
-    /// <exception cref="Exception">Thrown if no saved game is found for the given configuration name.</exception>
-    public GameState LoadGame(string gameConfigName)
+    /// <param name="gameId">The ID of the saved game to load.</param>
+    /// <returns>A <see cref="SaveGame"/> object representing the saved game state.</returns>
+    public SaveGame LoadGame(int gameId)
     {
         var savedGame = _context.SaveGames
             .Include(sg => sg.GameConfiguration)
-            .OrderByDescending(sg => sg.CreatedAtDateTime)
-            .FirstOrDefault(sg => sg.GameConfiguration!.Name == gameConfigName);
+            .FirstOrDefault(sg => sg.Id == gameId);
 
         if (savedGame == null)
         {
-            throw new Exception($"No saved game found with the name '{gameConfigName}'.");
+            throw new Exception($"No saved game found with the ID '{gameId}'.");
         }
 
-        return JsonSerializer.Deserialize<GameState>(savedGame.State) 
-               ?? throw new Exception("Failed to deserialize game state.");
+        return savedGame;
     }
 
     /// <summary>

@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace WebApp.Pages;
+namespace WebApp.Pages.NewGame;
 
-public class Home : PageModel
+public class NewGame : PageModel
 {
     private readonly IConfigRepository _configRepository;
 
-    public Home(IConfigRepository configRepository)
+    public NewGame(IConfigRepository configRepository)
     {
         _configRepository = configRepository;
     }
@@ -21,7 +21,7 @@ public class Home : PageModel
     public SelectList ConfigSelectList { get; set; } = default!;
     
     [BindProperty]
-    public int ConfigId { get; set; }
+    public string ConfigName { get; set; } = default!;
     
     public IActionResult OnGet()
     {
@@ -35,5 +35,25 @@ public class Home : PageModel
         ConfigSelectList = new SelectList(selectedListData, "id", "value");
         
         return Page();
+    }
+
+    public IActionResult OnPost()
+    {
+        if (string.IsNullOrEmpty(ConfigName))
+        {
+            ModelState.AddModelError(string.Empty, "Please select a configuration.");
+            return Page();
+        }
+        
+        if (ConfigName == "Custom")
+        {
+            return RedirectToPage("/CustomGame/CustomGame", new { userName = UserName });
+        }
+        else
+        {
+            var selectedConfig = _configRepository.GetConfigurationByName(ConfigName);
+            
+            return RedirectToPage("/PlayGame/Index", new { configName = selectedConfig.Name, userName = UserName });
+        }
     }
 }

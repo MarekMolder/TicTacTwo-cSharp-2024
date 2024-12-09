@@ -13,14 +13,10 @@ public interface IGameRepository
     /// </summary>
     /// <param name="jsonStateString">A JSON string representing the serialized state of the game.</param>
     /// <param name="gameConfig">The game configuration used for the game session.</param>
-    public void Savegame(string jsonStateString, GameConfiguration gameConfig);
+    public int Savegame(string jsonStateString, GameConfiguration gameConfig);
     
-    /// <summary>
-    /// Loads a game state based on a given game configuration name.
-    /// </summary>
-    /// <param name="gameConfigName">The name of the game configuration to load the game state for.</param>
-    /// <returns>A <see cref="GameState"/> representing the loaded game state.</returns>
-    GameState LoadGame(string gameConfigName);
+    
+    SaveGame LoadGame(int gameId);
     
     /// <summary>
     /// Retrieves a list of saved game names.

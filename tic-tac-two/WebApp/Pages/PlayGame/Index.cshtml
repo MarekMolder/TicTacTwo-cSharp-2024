@@ -5,24 +5,58 @@
 <h1>Trips Traps Trull</h1>
 
 <p>Next move by: @Model.TicTacTwoBrain.CurrentPlayer</p>
+<p>@ViewData["Message"]</p>
 
-<table class="" border="1">
+<table class="table table-bordered">
     @for (int y = 0; y < Model.TicTacTwoBrain.DimensionY; y++)
     {
-        <tr>
-            @for (int x = 0; x < Model.TicTacTwoBrain.DimensionX; x++)
+    <tr>
+        @for (int x = 0; x < Model.TicTacTwoBrain.DimensionX; x++)
+        {
+        <td>
+            @if (Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
             {
-                <td>
-                    @if (@Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
-                    {
-                        @(Model.TicTacTwoBrain.GameBoard[x][y])
-                    }
-                    else
-                    {
-                        @(Model.TicTacTwoBrain.GameBoard[x][y])
-                    }
-                </td>
+            <form method="post">
+                <input type="hidden" name="CoordinateX" value="@x" />
+                <input type="hidden" name="CoordinateY" value="@y" />
+                <input type="hidden" name="SelectedAction" value="new" />
+                <button type="submit" class="btn btn-link">Place</button>
+            </form>
             }
-        </tr>
+            else
+            {
+            @Model.TicTacTwoBrain.GameBoard[x][y]
+            }
+        </td>
+        }
+    </tr>
     }
 </table>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="SelectedAction" class="control-label"></label>
+        <select asp-for="SelectedAction" class="form-select" asp-items="Model.ActionSelectList"></select>
+    </div>
+
+    <div class="form-group">
+        <label for="CoordinateX"> Old Coordinate X</label>
+        <input type="number" id="OldCoordinateX" name="OldCoordinateX" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="CoordinateY"> Old Coordinate Y</label>
+        <input type="number" id="OldCoordinateY" name="OldCoordinateY" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="CoordinateX">Coordinate X</label>
+        <input type="number" id="CoordinateX" name="CoordinateX" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="CoordinateY">Coordinate Y</label>
+        <input type="number" id="CoordinateY" name="CoordinateY" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

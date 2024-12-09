@@ -10,6 +10,7 @@ namespace GameBrain
     public class TicTacTwoBrain
     {
         private GameState _gameState;
+        public Guid GameId { get; private set; }
         
         /// <summary>
         /// Initializes a new instance of the <see cref="TicTacTwoBrain"/> class with the specified game configuration,

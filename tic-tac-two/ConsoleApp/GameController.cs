@@ -103,7 +103,7 @@ public class GameController
 
             if (response == "exit")
             {
-                Environment.Exit(0);
+                Program.Main();
             }
 
             Console.WriteLine("Invalid input. Please try again.");
@@ -167,8 +167,7 @@ public class GameController
                 PauseBeforeContinue(); // Pause, et mängija saaks sõnumit lugeda
                 continue; // Küsi koordinaate uuesti
             }
-
-            // Kui tükk on paigutatud, siis välju tsüklist
+            
             break;
         }
     }
@@ -213,49 +212,89 @@ public class GameController
     }
     
     
-    /// <summary>
-    /// Prompts the player to enter coordinates for a move and validates them.
-    /// Continues prompting the user until valid coordinates are entered.
-    /// </summary>
-    /// <param name="prompt">The prompt message displayed to the player.</param>
-    /// <returns>
-    /// A tuple representing the coordinates (x, y) entered by the player.
-    /// </returns>
-    public (int x, int y) GetCoordinatesFromPlayer(string prompt)
+   /// <summary>
+/// Prompts the player to enter coordinates for a move and validates them.
+/// Continues prompting the user until valid coordinates are entered.
+/// </summary>
+/// <param name="prompt">The prompt message displayed to the player.</param>
+/// <returns>
+/// A tuple representing the coordinates (x, y) entered by the player.
+/// </returns>
+public (int x, int y) GetCoordinatesFromPlayer(string prompt)
+{
+    while (true)
     {
-        while (true)
+        Console.WriteLine(prompt); // Display the prompt to the user
+        var input = Console.ReadLine(); // Read user input
+
+        // Attempt to parse the input into coordinates and check if they are within board limits
+        if (TryParseCoordinates(input, out int x, out int y) && gameInstance.IsWithinBoard(x, y))
         {
-            Console.WriteLine(prompt); // Display the prompt to the user
-            var input = Console.ReadLine(); // Read user input
-
-            // Attempt to parse the input into coordinates and check if they are within board limits
-            if (TryParseCoordinates(input, out int x, out int y) && gameInstance.IsWithinBoard(x, y))
-            {
-                return (x, y); // Return the valid coordinates
-            }
-
-            Console.WriteLine(
-                "Invalid input. Please enter valid coordinates within the board limits."); // Error message for invalid input
+            return (x, y); // Return the valid coordinates
         }
+
+        Console.WriteLine(
+            "Invalid input. Please enter valid coordinates within the board limits."); // Error message for invalid input
     }
-    
-    /// <summary>
-    /// Attempts to parse the player's input into two integer coordinates (x, y).
-    /// </summary>
-    /// <param name="input">The raw input string from the player.</param>
-    /// <param name="x">The parsed x-coordinate.</param>
-    /// <param name="y">The parsed y-coordinate.</param>
-    /// <returns>
-    /// <c>true</c> if the input can be parsed successfully into two integers; otherwise, <c>false</c>.
-    /// </returns>
-    private bool TryParseCoordinates(string? input, out int x, out int y)
+}
+
+/// <summary>
+/// Attempts to parse the player's input into two integer coordinates (x, y).
+/// Supports both numeric and letter input for coordinates.
+/// </summary>
+/// <param name="input">The raw input string from the player.</param>
+/// <param name="x">The parsed x-coordinate.</param>
+/// <param name="y">The parsed y-coordinate.</param>
+/// <returns>
+/// <c>true</c> if the input can be parsed successfully into two integers; otherwise, <c>false</c>.
+/// </returns>
+private bool TryParseCoordinates(string? input, out int x, out int y)
+{
+    x = y = -1; // Initialize output coordinates
+    var parts = input?.Split(','); // Split input by comma
+
+    if (parts != null && parts.Length == 2)
     {
-        x = y = -1; // Initialize output coordinates
-        var parts = input?.Split(','); // Split input by comma
-        return parts != null && parts.Length == 2 // Check if there are two parts
-                             && int.TryParse(parts[0], out x) // Try parsing the first part as x
-                             && int.TryParse(parts[1], out y); // Try parsing the second part as y
+        // Try parsing the first part (x-coordinate)
+        if (!TryParseCoordinate(parts[0], out x)) return false;
+        
+        // Try parsing the second part (y-coordinate)
+        if (!TryParseCoordinate(parts[1], out y)) return false;
+
+        return true;
     }
+
+    return false;
+}
+
+/// <summary>
+/// Tries to parse a coordinate (either a number or a letter) into an integer.
+/// </summary>
+/// <param name="coordinate">The raw coordinate (either a number or a letter).</param>
+/// <param name="parsedCoordinate">The parsed integer coordinate.</param>
+/// <returns>
+/// <c>true</c> if the coordinate can be parsed successfully; otherwise, <c>false</c>.
+/// </returns>
+private bool TryParseCoordinate(string coordinate, out int parsedCoordinate)
+{
+    parsedCoordinate = -1;
+
+    // Check if the coordinate is a number
+    if (int.TryParse(coordinate, out parsedCoordinate))
+    {
+        return true;
+    }
+
+    // Check if the coordinate is a letter (A-Z or a-z)
+    if (coordinate.Length == 1 && char.IsLetter(coordinate[0]))
+    {
+        // Convert letter to a number (A = 10, B = 11, ..., Z = 35)
+        parsedCoordinate = char.ToUpper(coordinate[0]) - 'A' + 10;
+        return true;
+    }
+
+    return false;
+}
     
     /// <summary>
     /// Pauses the game and waits for the player to press any key to continue.

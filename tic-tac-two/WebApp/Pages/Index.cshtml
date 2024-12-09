@@ -1,35 +1,49 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+ViewData["Title"] = "Home page";
 }
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <title>@ViewData["Title"]</title>
+</head>
+<body>
 <div class="text-center">
     <h1 class="display-4">TIC-TAC-TWO</h1>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(Model.Error))
 {
-    <div class="alert alert-danger" role="alert">
-        @Model.Error
-    </div>
+<div class="alert alert-danger" role="alert">
+    @Model.Error
+</div>
 }
 
-<div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
+<div class="wrapper">
+    <div class="login_box">
+        <div class="login-header">
+            <span>Login</span>
+        </div>
+        
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control"/>
+            <div class="input_box">
+                <input asp-for="UserName" id="user" class="input-field"/>
+                <label asp-for="UserName" class="label">Username</label>
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary"/>
+            <div class="input_box">
+                <input type="submit" value="Create" class="input-submit" />
             </div>
         </form>
     </div>
 </div>
+</body>
+</html>

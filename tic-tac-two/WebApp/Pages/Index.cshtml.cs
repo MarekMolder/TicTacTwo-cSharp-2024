@@ -28,7 +28,7 @@ public class IndexModel : PageModel
         
         if (!string.IsNullOrWhiteSpace(UserName))
         {
-            return RedirectToPage("./Home", new { userName = UserName });
+            return RedirectToPage("./NewGame/NewGame", new { userName = UserName });
         }
         
         Error = "Please enter a username";

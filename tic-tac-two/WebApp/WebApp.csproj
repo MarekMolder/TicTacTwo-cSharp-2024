@@ -35,4 +35,20 @@
       <_ContentIncludedByDefault Remove="Pages\GameConfiguration\Index.cshtml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Update="css\style.css">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="img\" />
+      <Folder Include="Pages\Username\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\css\bg.jpg" />
+    </ItemGroup>
+
 </Project>

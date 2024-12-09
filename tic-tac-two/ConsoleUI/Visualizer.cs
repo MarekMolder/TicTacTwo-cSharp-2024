@@ -19,18 +19,20 @@ public class Visualizer
         int gridHeight = gameInstance.GridSizeHeight;
         int gridEndX = gridStartX + gridWidth;
         int gridEndY = gridStartY + gridHeight;
-        
+
+        // Draw column numbers using custom coordinate labeling
         Console.Write("   ");
         for (var x = 0; x < gameInstance.DimensionX; x++)
         {
-            Console.Write($" {x} ");
+            Console.Write($" {GetCoordinateLabel(x)} ");
             if (x != gameInstance.DimensionX - 1) Console.Write("|");
         }
         Console.WriteLine();
-        
+
+        // Draw the board with row numbers (also using custom coordinate labeling)
         for (var y = 0; y < gameInstance.DimensionY; y++)
         {
-            Console.Write($"{y} |");
+            Console.Write($"{GetCoordinateLabel(y)} |");
             for (var x = 0; x < gameInstance.DimensionX; x++)
             {
                 SetBackgroundColorForGrid(gameInstance, x, y, gridStartX, gridEndX, gridStartY, gridEndY);
@@ -151,4 +153,21 @@ public class Visualizer
             EGamePiece.O => "O",
             _ => " "
         };
+    
+    /// <summary>
+    /// Converts a coordinate value to its corresponding representation (0-9, A-Z).
+    /// </summary>
+    /// <param name="value">The coordinate value (X or Y).</param>
+    /// <returns>A string representing the coordinate (either a number or a letter).</returns>
+    private static string GetCoordinateLabel(int value)
+    {
+        if (value < 10) 
+        {
+            return value.ToString(); // Numbers 0-9
+        }
+        else 
+        {
+            return ((char)('A' + value - 10)).ToString(); // Letters A-Z for 10 and beyond
+        }
+    }
 }
