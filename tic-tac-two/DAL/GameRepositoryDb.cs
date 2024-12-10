@@ -27,7 +27,7 @@ public class GameRepositoryDb : IGameRepository
     /// </summary>
     /// <param name="jsonStateString">The JSON string representing the game state.</param>
     /// <param name="gameConfig">The game configuration associated with the saved game.</param>
-    public int Savegame(string jsonStateString, GameConfiguration gameConfig)
+    public string Savegame(string jsonStateString, GameConfiguration gameConfig)
     {
         // Check if the configuration exists in the database by name
         var existingConfig = _context.GameConfigurations
@@ -55,27 +55,8 @@ public class GameRepositoryDb : IGameRepository
 
         _context.SaveGames.Add(saveGame);
         _context.SaveChanges();
-        
-        return saveGame.Id; 
-    }
 
-    /// <summary>
-    /// Loads a saved game from the database based on the game ID.
-    /// </summary>
-    /// <param name="gameId">The ID of the saved game to load.</param>
-    /// <returns>A <see cref="SaveGame"/> object representing the saved game state.</returns>
-    public SaveGame LoadGame(int gameId)
-    {
-        var savedGame = _context.SaveGames
-            .Include(sg => sg.GameConfiguration)
-            .FirstOrDefault(sg => sg.Id == gameId);
-
-        if (savedGame == null)
-        {
-            throw new Exception($"No saved game found with the ID '{gameId}'.");
-        }
-
-        return savedGame;
+        return gameConfig.Name + "_" + saveGame.CreatedAtDateTime;
     }
 
     /// <summary>
@@ -89,27 +70,68 @@ public class GameRepositoryDb : IGameRepository
             .Select(sg => $"{sg.GameConfiguration!.Name}_{sg.CreatedAtDateTime.Replace(":", "-")}")
             .ToList();
     }
-
-    /// <summary>
+    
     /// Finds a saved game by its name in the database.
-    /// </summary>
-    /// <param name="gameName">The name of the saved game to find (including configuration name and timestamp).</param>
-    /// <returns>The JSON string representing the game state, or null if the game is not found.</returns>
-    public string? FindSavedGame(string gameName)
+    /// Finds a saved game by its name in the database.
+  /// Finds a saved game by its name in the database.
+public string? FindSavedGame(string gameName)
+{
+    if (string.IsNullOrWhiteSpace(gameName))
     {
-        // Remove the timestamp part to search only by configuration name
-        var configName = gameName.Split('_')[0];
+        Console.WriteLine("The game name cannot be null or empty.");
+        return null;
+    }
 
+    Console.WriteLine($"Searching for game: {gameName}");
+
+    // Extract the DateTime part from the gameName
+    var parts = gameName.Split('_');
+    if (parts.Length < 2)
+    {
+        Console.WriteLine($"Invalid game name format '{gameName}'. Expected format 'name_yyyy-MM-dd HH-mm-ss'.");
+        return null;
+    }
+
+    var dateTimePart = parts[1]; // This will be the "2024-12-10 11-33-12"
+    Console.WriteLine($"Extracted DateTime part: {dateTimePart}");
+
+    // Ensure we replace the hyphens and dashes with appropriate format for DateTime
+    // Replacing the hyphens in the date and the dash between hour, minute, and second.
+    string formattedDateTime = dateTimePart.Replace('-', ':'); // Changes "2024-12-10 11-33-12" to "2024:12:10 11:33:12"
+
+    // Now convert the formatted string to DateTime
+    if (!DateTime.TryParseExact(formattedDateTime, "yyyy:MM:dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out DateTime createdAtDateTime))
+    {
+        Console.WriteLine($"Invalid DateTime format in game name '{gameName}'. Expected format 'yyyy-MM-dd HH:mm:ss'.");
+        return null;
+    }
+
+    // Reformat it back to "yyyy-MM-dd HH:mm:ss" to make sure it is formatted correctly
+    string finalFormattedDateTime = createdAtDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+    Console.WriteLine($"Formatted DateTime to compare: {finalFormattedDateTime}");
+
+    try
+    {
+        // Fetch the saved game from the database
         var savedGame = _context.SaveGames
             .Include(sg => sg.GameConfiguration)
-            .OrderByDescending(sg => sg.CreatedAtDateTime)
-            .FirstOrDefault(sg => sg.GameConfiguration != null && sg.GameConfiguration.Name == configName);
+            .FirstOrDefault(sg => sg.CreatedAtDateTime == finalFormattedDateTime);
 
         if (savedGame == null)
         {
-            Console.WriteLine($"No saved game found with the name '{gameName}'.");
+            Console.WriteLine($"No saved game found with the created date/time '{finalFormattedDateTime}'.");
             return null;
         }
+
         return savedGame.State;
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred while searching for the saved game: {ex.Message}");
+        return null;
+    }
+}
+
+
+
 }

@@ -45,6 +45,9 @@ public class Index : PageModel
     [BindProperty(SupportsGet = true)] 
     public int GameId { get; set; }
     
+    [BindProperty(SupportsGet = true)] 
+    public string GameName { get; set; }
+    
     [BindProperty]
     public bool IsGameOver { get; set; } = false;
     
@@ -86,43 +89,43 @@ public class Index : PageModel
 
     public IActionResult OnGet()
     {
-        if (GameId != 0)
+        if (!string.IsNullOrEmpty(GameName))
         {
             LoadExistingGame();
         }
         else if (!string.IsNullOrEmpty(ConfigName))
         {
             StartNewGame();
-            return RedirectToPage("/PlayGame/Index", new { gameId = GameId, userName = UserName });
+            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
         }
         else
         {
             StartGameWithCustomConfig();
-            return RedirectToPage("/PlayGame/Index", new { gameId = GameId, userName = UserName });
+            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
         }
         return Page();
     }
 
     public IActionResult OnPost()
     {
-        if (GameId != 0)
+        if (!string.IsNullOrEmpty(GameName))
         {
             LoadExistingGame();
             if (!IsGameOver)
             {
                 PerformAction();
-                return RedirectToPage("/PlayGame/Index", new { gameId = GameId, userName = UserName });
+                return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
             }
         } 
         else if (!string.IsNullOrEmpty(ConfigName))
         {
             StartNewGame();
-            return RedirectToPage("/PlayGame/Index", new { gameId = GameId, userName = UserName });
+            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
         }
         else
         {
             StartGameWithCustomConfig();
-            return RedirectToPage("/PlayGame/Index", new { gameId = GameId, userName = UserName });
+            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
         }
         return Page();
     }
@@ -130,13 +133,18 @@ public class Index : PageModel
    
         private void LoadExistingGame()
         {
-            var dbGame = _gameRepository.LoadGame(GameId);
+            var dbGame = _gameRepository.FindSavedGame(GameName);
+            
+            var configName = GameName.Split('_')[0];
+           
+            
+            
             TicTacTwoBrain = new TicTacTwoBrain(new Domain.GameConfiguration()
             {
-                Name = dbGame.GameConfiguration?.Name!
+                Name = configName
             });
 
-            TicTacTwoBrain.SetGameStateJson(dbGame.State);
+            TicTacTwoBrain.SetGameStateJson(dbGame);
             UpdateActionSelectList();
             CheckGameOver();
         }
@@ -145,7 +153,7 @@ public class Index : PageModel
         {
             var gameSettings = _configRepository.GetConfigurationByName(ConfigName);
             TicTacTwoBrain = new TicTacTwoBrain(gameSettings);
-            GameId = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
+            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
         }
         
         private void StartGameWithCustomConfig()
@@ -172,7 +180,7 @@ public class Index : PageModel
             TicTacTwoBrain = new TicTacTwoBrain(gameConfig);
 
             // Salvesta mängu ja saad mängu ID
-            GameId = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
+            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
         }
 
         private void CheckGameOver()
@@ -214,7 +222,7 @@ public class Index : PageModel
                     return;
             }
             // Save game state after action is performed
-            GameId = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
+            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
             CheckGameOver();
         }
 

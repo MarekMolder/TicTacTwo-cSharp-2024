@@ -157,16 +157,7 @@ public class Menus
 
         string jsonState;
         
-        if (File.Exists(savedGameContent))
-        {
-            // If using JSON, read the content from the file
-            jsonState = File.ReadAllText(savedGameContent);
-        }
-        else
-        {
-            // If using a database, retrieve the content directly
-            jsonState = savedGameContent;
-        }
+        jsonState = savedGameContent;
 
         var gameState = JsonSerializer.Deserialize<GameState>(jsonState);
 
