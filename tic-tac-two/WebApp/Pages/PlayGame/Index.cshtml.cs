@@ -98,11 +98,6 @@ public class Index : PageModel
             StartNewGame();
             return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
         }
-        else
-        {
-            StartGameWithCustomConfig();
-            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
-        }
         return Page();
     }
 
@@ -122,18 +117,13 @@ public class Index : PageModel
             StartNewGame();
             return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
         }
-        else
-        {
-            StartGameWithCustomConfig();
-            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
-        }
         return Page();
     }
 
    
         private void LoadExistingGame()
         {
-            var dbGame = _gameRepository.FindSavedGame(GameName);
+            var state = _gameRepository.FindSavedGame(GameName);
             
             var configName = GameName.Split('_')[0];
            
@@ -144,42 +134,15 @@ public class Index : PageModel
                 Name = configName
             });
 
-            TicTacTwoBrain.SetGameStateJson(dbGame);
+            TicTacTwoBrain.SetGameStateJson(state);
             UpdateActionSelectList();
             CheckGameOver();
         }
 
         private void StartNewGame()
         {
-            var gameSettings = _configRepository.GetConfigurationByName(ConfigName);
-            TicTacTwoBrain = new TicTacTwoBrain(gameSettings);
-            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
-        }
-        
-        private void StartGameWithCustomConfig()
-        {
-            
-            
-            var gameConfig = new Domain.GameConfiguration
-            {
-                Name = "Custom",
-                BoardSizeWidth = BoardWidth,
-                BoardSizeHeight = BoardHeight,
-                PiecesNumber = PieceNumber,
-                WinCondition = WinCondition,
-                MovePieceAfterNMove = PieceMove,
-                UsesGrid = Grid,
-                GridSizeWidth = GridWidth,
-                GridSizeHeight = GridHeight,
-                MoveGridAfterNMove = GridMove,
-                GridPositionX = GridX,
-                GridPositionY = GridY
-            };
-
-            // Loo TicTacTwoBrain objekt vastavalt kohandatud konfiguratsioonile
+            var gameConfig = _configRepository.GetConfigurationByName(ConfigName);
             TicTacTwoBrain = new TicTacTwoBrain(gameConfig);
-
-            // Salvesta mängu ja saad mängu ID
             GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
         }
 
@@ -222,7 +185,7 @@ public class Index : PageModel
                     return;
             }
             // Save game state after action is performed
-            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
+            GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig());
             CheckGameOver();
         }
 

@@ -6,7 +6,7 @@ namespace DAL;
 /// <summary>
 /// Abstract base class for managing game configurations.
 /// </summary>
-public abstract class ConfigRepositoryHardCoded: IConfigRepository
+public abstract class ConfigRepositoryHardCoded
 {
     /// <summary>
     /// A static readonly list of predefined game configurations.

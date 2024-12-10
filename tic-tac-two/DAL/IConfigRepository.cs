@@ -20,4 +20,6 @@ public interface IConfigRepository
     /// <param name="name">The name of the game configuration to retrieve.</param>
     /// <returns>A <see cref="GameConfiguration"/> object corresponding to the given name.</returns>
     GameConfiguration GetConfigurationByName(string name);
+
+    void SaveConfiguration(GameConfiguration config);
 }

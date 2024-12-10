@@ -78,4 +78,22 @@ public class ConfigRepositoryJson : IConfigRepository
             }
         }
     }
+    
+    public void SaveConfiguration(GameConfiguration config)
+    {
+        // Ensure the directory exists
+        if (!System.IO.Directory.Exists(FileHelper.BasePath))
+        {
+            System.IO.Directory.CreateDirectory(FileHelper.BasePath);
+        }
+
+        // Serialize the configuration object to JSON
+        var jsonContent = System.Text.Json.JsonSerializer.Serialize(config);
+
+        // Construct the full path for the JSON file
+        var filePath = System.IO.Path.Combine(FileHelper.BasePath, $"{config.Name}" + FileHelper.ConfigExtension);
+
+        // Write the serialized JSON content to the file
+        System.IO.File.WriteAllText(filePath, jsonContent);
+    }
 }

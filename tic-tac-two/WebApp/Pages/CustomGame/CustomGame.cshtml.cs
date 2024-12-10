@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using DAL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -6,7 +7,13 @@ namespace WebApp.Pages.CustomGame
 {
     public class CustomGame : PageModel
     {
-        // These properties will bind to the form inputs in the Razor Page
+        private readonly IConfigRepository _configRepository;
+
+        public CustomGame(IConfigRepository configRepository)
+        {
+            _configRepository = configRepository;
+        }
+        
         [BindProperty, Required, Range(2, 20)]
         public int BoardWidth { get; set; }
         
@@ -26,10 +33,10 @@ namespace WebApp.Pages.CustomGame
         public bool Grid { get; set; }
 
         // Grid-related properties
-        [BindProperty, Range(2, 20)]
+        [BindProperty]
         public int GridWidth { get; set; }
         
-        [BindProperty, Range(2, 20)]
+        [BindProperty]
         public int GridHeight { get; set; }
 
         [BindProperty]
@@ -43,16 +50,15 @@ namespace WebApp.Pages.CustomGame
 
         public void OnGet()
         {
-            // Initialize any default values here, if necessary
-            // Example: Set default values for board dimensions and piece count
-            BoardWidth = 3;   // Default value
-            BoardHeight = 3;  // Default value
-            PieceNumber = 5; // Default number of pieces (e.g., chess pieces)
-            WinCondition = 3; // Default win condition (e.g., 4 in a row)
-            PieceMove = 100;    // Default piece movement
-            Grid = false;     // Default value, no grid by default
+            // Default values for board and piece settings
+            BoardWidth = 3;
+            BoardHeight = 3;
+            PieceNumber = 5;
+            WinCondition = 3;
+            PieceMove = 100;
+            Grid = false; // default, no grid
 
-            // Optionally, initialize grid-related properties if needed
+            // Default grid values when Grid is not checked
             GridWidth = 0;
             GridHeight = 0;
             GridMove = 0;
@@ -60,30 +66,28 @@ namespace WebApp.Pages.CustomGame
             GridY = 0;
         }
 
-        // This method will handle form submission via POST request
         public IActionResult OnPost()
         {
-            if (ModelState.IsValid)
+            var config = new Domain.GameConfiguration()
             {
-                return RedirectToPage("/PlayGame/Index", new 
-                {
-                    boardWidth = BoardWidth,
-                    boardHeight = BoardHeight,
-                    pieceNumber = PieceNumber,
-                    winCondition = WinCondition,
-                    pieceMove = PieceMove,
-                    grid = Grid,
-                    gridWidth = Grid ? GridWidth : 0,
-                    gridHeight = Grid ? GridHeight : 0,
-                    gridMove = Grid ? GridMove : 10000,
-                    gridX = Grid ? GridX : 0,
-                    gridY = Grid ? GridY : 0
-                });
+                Name = "CustomGame",
+                BoardSizeWidth = BoardWidth,
+                BoardSizeHeight = BoardHeight,
+                PiecesNumber = PieceNumber,
+                WinCondition = WinCondition,
+                MovePieceAfterNMove = PieceMove,
+                UsesGrid = Grid,
+                GridSizeWidth = Grid ? GridWidth : 0,
+                GridSizeHeight = Grid ? GridHeight : 0,
+                MoveGridAfterNMove = Grid ? GridMove : 10000,
+                GridPositionX = Grid ? GridX : 0,
+                GridPositionY = Grid ? GridY : 0
+            };
+            
+            _configRepository.SaveConfiguration(config);
+               
                 
-            }
-
-            // If the model is not valid, return the same page with validation messages
-            return Page();
+            return RedirectToPage("/PlayGame/Index", new { configName = config.Name });
         }
     }
 }

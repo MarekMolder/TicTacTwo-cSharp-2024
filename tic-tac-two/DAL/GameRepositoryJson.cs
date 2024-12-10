@@ -65,4 +65,32 @@ public class GameRepositoryJson : IGameRepository
         // Return the file names without extensions
         return files.Select(filePath => Path.GetFileNameWithoutExtension(filePath)).ToList();
     }
+
+    public string UpdateGame(string jsonStateString, string gameName, GameConfiguration gameConfiguration)
+    {
+        var files = Directory.GetFiles(FileHelper.BasePath, $"*{FileHelper.GameExtension}");
+    
+        // Find the first matching file path
+        var filePath = files.FirstOrDefault(file => Path.GetFileNameWithoutExtension(file).StartsWith(gameName));
+    
+        if (filePath == null)
+        {
+            return $"Error: Game with the name '{gameName}' not found.";
+        }
+
+        try
+        {
+            // Create a new file with the new name and updated game state
+            System.IO.File.WriteAllText(filePath, jsonStateString);
+
+            // Return the new name (sanitized game name with the new timestamp)
+            return gameName;
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions (e.g., log the error or inform the user)
+            Console.WriteLine($"An error occurred while updating the game: {ex.Message}");
+            return $"Error: {ex.Message}";
+        }
+    }
 }

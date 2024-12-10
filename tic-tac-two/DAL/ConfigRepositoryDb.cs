@@ -76,4 +76,10 @@ public class ConfigRepositoryDb : IConfigRepository
             _context.SaveChanges(); // Save changes to the database
         }
     }
+    
+    public void SaveConfiguration(GameConfiguration config)
+    {
+        _context.GameConfigurations.Add(config);  // Add new configuration
+        _context.SaveChanges();  // Save changes to the database
+    }
 }

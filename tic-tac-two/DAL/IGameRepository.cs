@@ -13,4 +13,6 @@ public interface IGameRepository
     List<string> GetSavedGameNames();
     
     string? FindSavedGame(string gameName);
+
+    public string UpdateGame(string jsonStateString, string gameName, GameConfiguration gameConfig);
 }
