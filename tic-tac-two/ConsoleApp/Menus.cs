@@ -97,7 +97,9 @@ public class Menus
     {
         var (playerX, playerO) = CustomInput.InputPlayerNames();
         var gameController = new GameController(_gameRepository, _configRepository);
-        gameController.PlayGame(gameConfig, playerX, playerO);
+        GameState gameState = new GameState(gameConfig, playerX, playerO);
+        
+        gameController.PlayGame(gameConfig, gameState);
     }
 
     /// <summary>
@@ -111,9 +113,11 @@ public class Menus
 
         // Loo GameController, andes edasi _gameRepository ja _configRepository
         var gameController = new GameController(_gameRepository, _configRepository);
+
+        GameState gameState = new GameState(customConfig, playerX, playerO);
     
         // Alusta uut mängu kohandatud konfiguratsiooniga
-        gameController.PlayGame(customConfig, playerX, playerO);
+        gameController.PlayGame(customConfig, gameState);
     }
 
     /// <summary>
@@ -159,24 +163,14 @@ public class Menus
         
         jsonState = savedGameContent;
 
-        var gameState = JsonSerializer.Deserialize<GameState>(jsonState);
+        
+        var gameConfig = GetConfiguration.LoadGameConfiguration(jsonState);
 
-        // Restore game properties from the loaded state
-        EGamePiece[][] gameBoard = gameState.GameBoard;
-        GameConfiguration gameConfig = gameState.GameConfiguration;
-        EGamePiece currentPlayer = gameState.CurrentPlayer;
-        int piecesLeftX = gameState.PiecesLeftX;
-        int piecesLeftO = gameState.PiecesLeftO;
-        int movesMadeX = gameState.MovesMadeX;
-        int movesMadeO = gameState.MovesMadeO;
-        string playerX = gameState.PlayerX ?? "Player X";
-        string playerO = gameState.PlayerO ?? "Player O";
-        int gridPositionX = gameState.GridPositionX;
-        int gridPositionY = gameState.GridPositionY;
+        var gameState = GetConfiguration.LoadGameState(jsonState, gameConfig);
         
 
         var gameController = new GameController(_gameRepository, _configRepository);
-        gameController.PlayGame(gameConfig, playerX, playerO, gameBoard, currentPlayer, piecesLeftX, piecesLeftO, movesMadeX, movesMadeO, gridPositionX, gridPositionY);
+        gameController.PlayGame(gameConfig, gameState);
     }
     
     /// <summary>

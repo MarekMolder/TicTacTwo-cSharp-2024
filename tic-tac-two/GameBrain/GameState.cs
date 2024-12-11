@@ -11,11 +11,11 @@ public class GameState
     /// The game board represented as a 2D array of game pieces.
     /// </summary>
     public EGamePiece[][] GameBoard { get; set; }
-    
+
     /// <summary>
     /// The current player (X or O).
     /// </summary>
-    public EGamePiece CurrentPlayer { get; set; }
+    public EGamePiece CurrentPlayer { get; set; } = EGamePiece.X;
 
     /// <summary>
     /// Configuration settings for the game, such as board size, win conditions, etc.
@@ -90,6 +90,24 @@ public class GameState
         PlayerX = playerX;
         GridPositionX = gridPositionX;
         GridPositionY = gridPositionY;
+    }
+    
+    public GameState(GameConfiguration gameConfiguration, string playerX, string playerO)
+    {
+        GameConfiguration = gameConfiguration;
+        PlayerX = playerX;
+        PlayerO = playerO;
+    }
+    
+    public GameState(EGamePiece[][] gameBoard, GameConfiguration gameConfiguration)
+    {
+        GameBoard = gameBoard;
+        GameConfiguration = gameConfiguration;
+    }
+
+    public GameState()
+    {
+        
     }
     
     /// <summary>

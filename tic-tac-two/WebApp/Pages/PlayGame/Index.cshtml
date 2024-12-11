@@ -16,16 +16,35 @@
         <td>
             @if (Model.TicTacTwoBrain.GameBoard[x][y] == EGamePiece.Empty)
             {
-            <form method="post">
+            @if (Model.TicTacTwoBrain.IsCellInGrid(x, y))
+            {
+            <form method="post" style="display:inline;">
                 <input type="hidden" name="CoordinateX" value="@x" />
                 <input type="hidden" name="CoordinateY" value="@y" />
                 <input type="hidden" name="SelectedAction" value="new" />
-                <button type="submit" class="btn btn-link">Place</button>
+                <button type="submit" class="btn btn-warning">Place</button>
             </form>
             }
             else
             {
-            @Model.TicTacTwoBrain.GameBoard[x][y]
+            <form method="post" style="display:inline;">
+                <input type="hidden" name="CoordinateX" value="@x" />
+                <input type="hidden" name="CoordinateY" value="@y" />
+                <input type="hidden" name="SelectedAction" value="new" />
+                <button type="submit" class="btn btn-outline-primary">Place</button>
+            </form>
+            }
+            }
+            else
+            {
+            @if (Model.TicTacTwoBrain.IsCellInGrid(x, y))
+            {
+            <button type="button" class="btn btn-warning" disabled>@(Model.TicTacTwoBrain.GameBoard[x][y])</button>
+            }
+            else
+            {
+            <button type="button" class="btn btn-outline-primary" disabled>@(Model.TicTacTwoBrain.GameBoard[x][y])</button>
+            }
             }
         </td>
         }
@@ -37,26 +56,47 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="SelectedAction" class="control-label"></label>
-        <select asp-for="SelectedAction" class="form-select" asp-items="Model.ActionSelectList"></select>
+        <select asp-for="SelectedAction" class="form-select" asp-items="Model.ActionSelectList" id="SelectedAction">
+        </select>
     </div>
 
-    <div class="form-group">
-        <label for="CoordinateX"> Old Coordinate X</label>
-        <input type="number" id="OldCoordinateX" name="OldCoordinateX" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="CoordinateY"> Old Coordinate Y</label>
-        <input type="number" id="OldCoordinateY" name="OldCoordinateY" class="form-control" />
+    <div class="form-group" id="new-fields" style="display:none;">
+        <label asp-for="CoordinateX" class="control-label">Coordinate X</label>
+        <input asp-for="CoordinateX" class="form-control" />
+        <label asp-for="CoordinateY" class="control-label">Coordinate Y</label>
+        <input asp-for="CoordinateY" class="form-control" />
     </div>
 
-    <div class="form-group">
-        <label for="CoordinateX">Coordinate X</label>
-        <input type="number" id="CoordinateX" name="CoordinateX" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="CoordinateY">Coordinate Y</label>
-        <input type="number" id="CoordinateY" name="CoordinateY" class="form-control" />
+    <div class="form-group" id="old-fields" style="display:none;">
+        <label asp-for="OldCoordinateX" class="control-label">Old Coordinate X</label>
+        <input asp-for="OldCoordinateX" class="form-control" />
+        <label asp-for="OldCoordinateY" class="control-label">Old Coordinate Y</label>
+        <input asp-for="OldCoordinateY" class="form-control" />
+        <label asp-for="CoordinateX" class="control-label">New Coordinate X</label>
+        <input asp-for="CoordinateX" class="form-control" />
+        <label asp-for="CoordinateY" class="control-label">New Coordinate Y</label>
+        <input asp-for="CoordinateY" class="form-control" />
     </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectedActionElement = document.getElementById("SelectedAction");
+        const newFields = document.getElementById("new-fields");
+        const oldFields = document.getElementById("old-fields");
+
+        function toggleFields() {
+            const selectedValue = selectedActionElement.value;
+            newFields.style.display = selectedValue === "new" || selectedValue === "grid" ? "block" : "none";
+            oldFields.style.display = selectedValue === "old" ? "block" : "none";
+        }
+
+        toggleFields();
+        selectedActionElement.addEventListener("change", toggleFields);
+    });
+</script>
+}

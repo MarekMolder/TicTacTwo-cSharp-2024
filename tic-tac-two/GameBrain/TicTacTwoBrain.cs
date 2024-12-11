@@ -10,7 +10,6 @@ namespace GameBrain
     public class TicTacTwoBrain
     {
         private GameState _gameState;
-        public Guid GameId { get; private set; }
         
         /// <summary>
         /// Initializes a new instance of the <see cref="TicTacTwoBrain"/> class with the specified game configuration,
@@ -33,6 +32,10 @@ namespace GameBrain
             
             int finalGridPositionX = gridPositionX == -1 ? gameConfiguration.GridPositionX : gridPositionX;
             int finalGridPositionY = gridPositionY == -1 ? gameConfiguration.GridPositionY : gridPositionY;
+            
+            int gridSizeWidth = gridPositionX == -1 ? gameConfiguration.GridPositionX : gridPositionX;
+            int gridSizeHeight = gridPositionY == -1 ? gameConfiguration.GridPositionY : gridPositionY;
+            int usesGrid = gridPositionY == -1 ? gameConfiguration.GridPositionY : gridPositionY;
             
             Console.WriteLine($"Final Grid Position X: {finalGridPositionX}");
             Console.WriteLine($"Final Grid Position Y: {finalGridPositionY}");
@@ -77,6 +80,25 @@ namespace GameBrain
         public string GetGameConfigName()
         {
             return _gameState.GameConfiguration.Name;
+        }
+        
+        public bool IsCellInGrid(int x, int y)
+        {
+            if (!_gameState.GameConfiguration.UsesGrid)
+            {
+                return false;
+            }
+
+            var GridStartX = _gameState.GridPositionX.ToString();
+            var GridStartY = _gameState.GridPositionY.ToString();
+
+            int gridStartX = int.TryParse(GridStartX, out var startX) ? startX : -1;
+            int gridStartY = int.TryParse(GridStartY, out var startY) ? startY : -1;
+
+            int gridEndX = gridStartX + _gameState.GameConfiguration.GridSizeWidth - 1;
+            int gridEndY = gridStartY + _gameState.GameConfiguration.GridSizeHeight - 1;
+
+            return x >= gridStartX && x <= gridEndX && y >= gridStartY && y <= gridEndY;
         }
         
         /// <summary>
@@ -585,4 +607,5 @@ namespace GameBrain
             _gameState = System.Text.Json.JsonSerializer.Deserialize<GameState>(state);
         }
     }
+    
 }

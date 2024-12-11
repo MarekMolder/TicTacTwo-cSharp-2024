@@ -17,31 +17,31 @@ public class GameController
         _configRepository = configRepository;
     }
     
-    public void PlayGame(GameConfiguration chosenConfig, string playerX, string playerO, EGamePiece[][] gameBoard = null, EGamePiece currentPlayer = EGamePiece.X, int piecesLeftX = 0, int piecesLeftO = 0, int movesMadeX = 0, int movesMadeO = 0, int gridPositionX = 0, int gridPositionY = 0)
+    public void PlayGame(GameConfiguration chosenConfig,  GameState gameState)
     {
         
-        if (gameBoard == null)
+        if (gameState.GameBoard == null)
         {
             // Kui mängulauad pole salvestatud, alustame uut mängu
-            gameInstance = new TicTacTwoBrain(chosenConfig, playerX, playerO);
+            gameInstance = new TicTacTwoBrain(chosenConfig, gameState.PlayerX, gameState.PlayerO);
         }
         else
         {
             // Kui mängulaua olek on olemas, laadime vana mängu
-            gameInstance = new TicTacTwoBrain(chosenConfig, playerX, playerO, gridPositionX, gridPositionY, movesMadeX, movesMadeO);
-            gameInstance.SetGameBoard(gameBoard);
-            gameInstance.CurrentPlayer = currentPlayer;
-            gameInstance.PiecesLeftX = piecesLeftX;
-            gameInstance.PiecesLeftO = piecesLeftO;
-            gameInstance.MovesMadeX = movesMadeX;
-            gameInstance.MovesMadeO = movesMadeO;
+            gameInstance = new TicTacTwoBrain(chosenConfig, gameState.PlayerX, gameState.PlayerO, gameState.GridPositionX, gameState.GridPositionY, gameState.MovesMadeX, gameState.MovesMadeO);
+            gameInstance.SetGameBoard(gameState.GameBoard);
+            gameInstance.CurrentPlayer = gameState.CurrentPlayer;
+            gameInstance.PiecesLeftX = gameState.PiecesLeftX;
+            gameInstance.PiecesLeftO = gameState.PiecesLeftO;
+            gameInstance.MovesMadeX = gameState.MovesMadeX;
+            gameInstance.MovesMadeO = gameState.MovesMadeO;
         }
 
-        var currentPlayerName = currentPlayer == EGamePiece.X ? playerX : playerO;
+        var currentPlayerName = gameState.CurrentPlayer == EGamePiece.X ? gameState.PlayerX : gameState.PlayerO;
 
     do
     {
-        DisplayBoard(gameInstance, currentPlayerName, playerX, playerO);
+        DisplayBoard(gameInstance, currentPlayerName, gameState.PlayerX, gameState.PlayerO);
 
         var canMovePiece = gameInstance.CanMovePiece();
         var canMoveGrid = gameInstance.CanMoveGrid();
@@ -109,12 +109,12 @@ public class GameController
             Console.WriteLine("Invalid input. Please try again.");
         }
 
-        if (CheckEndGameConditions(gameInstance, playerX, playerO))
+        if (CheckEndGameConditions(gameInstance, gameState.PlayerX, gameState.PlayerO))
         {
             break;
         }
 
-        currentPlayerName = currentPlayerName == playerX ? playerO : playerX;
+        currentPlayerName = currentPlayerName == gameState.PlayerX ? gameState.PlayerO : gameState.PlayerX;
 
         } while (true);
     }

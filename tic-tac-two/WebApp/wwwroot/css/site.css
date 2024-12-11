@@ -25,3 +25,7 @@ body {
 .form-group {
   margin-bottom: 1em;
 }
+
+.grid-cell {
+  background-color: #f0f0f0;
+}

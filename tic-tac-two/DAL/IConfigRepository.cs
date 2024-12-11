@@ -1,5 +1,6 @@
 ﻿using Domain;
 using GameBrain;
+using GameConfiguration = Domain.GameConfiguration;
 
 namespace DAL;
 
