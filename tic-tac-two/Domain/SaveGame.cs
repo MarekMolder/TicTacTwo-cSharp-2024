@@ -40,4 +40,14 @@ public class SaveGame
     /// </summary>
     [ForeignKey("ConfigurationId")]
     public GameConfiguration? GameConfiguration { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the name of the player who saved the game.
+    /// </summary>
+    public string? GameMakerUsername { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the version of the game at the time of saving.
+    /// </summary>
+    public string? GameJoinerUsername { get; set; } = default!;
 }

@@ -97,7 +97,7 @@ public class GameController
 
             if (response == "save")
             {
-                _gameRepository.Savegame(gameInstance.GetGameStateJson(), chosenConfig);
+                _gameRepository.Savegame(gameInstance.GetGameStateJson(), chosenConfig, gameState.PlayerX, gameState.PlayerO);
                 break;
             }
 

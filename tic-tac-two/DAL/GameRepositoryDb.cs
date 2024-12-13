@@ -21,13 +21,7 @@ public class GameRepositoryDb : IGameRepository
         _context = context;
     }
     
-    /// <summary>
-    /// Saves the game state to the database.
-    /// If the configuration doesn't exist, it will be added.
-    /// </summary>
-    /// <param name="jsonStateString">The JSON string representing the game state.</param>
-    /// <param name="gameConfig">The game configuration associated with the saved game.</param>
-    public string Savegame(string jsonStateString, GameConfiguration gameConfig)
+    public string Savegame(string jsonStateString, GameConfiguration gameConfig, string? username, string? player2 = null)
     {
         // Check if the configuration exists in the database by name
         var existingConfig = _context.GameConfigurations
@@ -50,13 +44,17 @@ public class GameRepositoryDb : IGameRepository
         {
             CreatedAtDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             State = jsonStateString,
-            ConfigurationId = gameConfig.Id
+            ConfigurationId = gameConfig.Id,
+            GameMakerUsername = username,
+            GameJoinerUsername = player2
         };
 
         _context.SaveGames.Add(saveGame);
         _context.SaveChanges();
 
-        return gameConfig.Name + "_" + saveGame.CreatedAtDateTime;
+        var configName = gameConfig.Name.Split('_')[0];
+        
+        return configName + "_" + saveGame.CreatedAtDateTime;
     }
 
     /// <summary>
@@ -67,7 +65,28 @@ public class GameRepositoryDb : IGameRepository
     {
         return _context.SaveGames
             .Include(sg => sg.GameConfiguration)
-            .Select(sg => $"{sg.GameConfiguration!.Name}_{sg.CreatedAtDateTime.Replace(":", "-")}")
+            .AsEnumerable()
+            .Select(sg => $"{sg.GameConfiguration!.Name.Split("_")[0]}_{sg.CreatedAtDateTime}")
+            .ToList();
+    }
+    
+    public List<string> GetUsernameSavedGameNames(string username)
+    {
+        return _context.SaveGames
+            .Include(sg => sg.GameConfiguration)
+            .Where(sg => sg.GameMakerUsername == username || sg.GameJoinerUsername == username)
+            .AsEnumerable()
+            .Select(sg => $"{sg.GameConfiguration!.Name.Split("_")[0]}_{sg.CreatedAtDateTime}")
+            .ToList();
+    }
+    
+    public List<string> GetFreeJoinGames(string username)
+    {
+        return _context.SaveGames
+            .Include(sg => sg.GameConfiguration)
+            .Where(sg => sg.GameMakerUsername != username && sg.GameJoinerUsername == null)
+            .AsEnumerable()
+            .Select(sg => $"{sg.GameConfiguration!.Name.Split("_")[0]}_{sg.CreatedAtDateTime}")
             .ToList();
     }
     
@@ -103,8 +122,10 @@ public class GameRepositoryDb : IGameRepository
             return null;
         }
     }
+    
+    
 
-    public string UpdateGame(string jsonStateString, string gameName, GameConfiguration gameConfiguration)
+    public string UpdateGame(string jsonStateString, string gameName, GameConfiguration gameConfiguration, string? username)
     {
         string? finalFormattedDateTime = ParseGameNameToDateTime(gameName);
         if (finalFormattedDateTime == null)
@@ -116,7 +137,6 @@ public class GameRepositoryDb : IGameRepository
             .Include(sg => sg.GameConfiguration)
             .FirstOrDefault(sg => sg.CreatedAtDateTime == finalFormattedDateTime);
         
-        
         if (existingGame != null)
         {
             // Option 1: Delete the old game state (if you want to delete old entries)
@@ -126,21 +146,33 @@ public class GameRepositoryDb : IGameRepository
             Console.WriteLine($"Old game entry with name '{gameName}' has been deleted.");
         }
 
-        // Now we can save the new game state as a new entry
         var saveGame = new SaveGame
         {
-            CreatedAtDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            CreatedAtDateTime = finalFormattedDateTime,
             State = jsonStateString,
-            ConfigurationId = gameConfiguration.Id
+            ConfigurationId = gameConfiguration.Id,
+            GameMakerUsername = existingGame.GameMakerUsername
         };
 
-        // Add the new save game entry
+        if (existingGame.GameJoinerUsername != null)
+        {
+            saveGame.GameJoinerUsername = existingGame.GameJoinerUsername;
+        }
+
+        // If the existing game does not have a joiner and the maker is not the current user
+        if (existingGame.GameJoinerUsername == null && existingGame.GameMakerUsername != username)
+        {
+            saveGame.GameJoinerUsername = username;
+        }
+
+        // Save the new game state as a new entry
         _context.SaveGames.Add(saveGame);
         _context.SaveChanges();
-
         Console.WriteLine($"New game state has been saved under the name '{gameName}'.");
+        
+        var configName = gameConfiguration.Name.Split('_')[0];
 
-        return gameConfiguration.Name + "_" + saveGame.CreatedAtDateTime;
+        return configName + "_" + saveGame.CreatedAtDateTime;
     }
     
     private string? ParseGameNameToDateTime(string gameName)

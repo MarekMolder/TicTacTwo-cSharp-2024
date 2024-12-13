@@ -1,9 +1,10 @@
-﻿using System.Text.Json;
-using DAL;
+﻿using DAL;
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace WebApp.Pages;
 
@@ -33,6 +34,10 @@ public class Index : PageModel
     [BindProperty] public int OldCoordinateX { get; set; }
 
     [BindProperty] public int OldCoordinateY { get; set; }
+    
+    [BindProperty] public int NewCoordinateX { get; set; }
+
+    [BindProperty] public int NewCoordinateY { get; set; }
 
     public SelectList ActionSelectList { get; set; } = default!;
 
@@ -67,7 +72,20 @@ public class Index : PageModel
             LoadExistingGame();
             if (!IsGameOver)
             {
-                PerformAction();
+                
+                // TODO: KONTROLLI VEEL ET KUI KÄIB X SIIS OLEKS USERNAME X
+                var gameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
+
+                if (gameState.PlayerX == UserName || gameState.PlayerO == UserName)
+                {
+                    if ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && gameState.PlayerX == UserName) || 
+                        (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && gameState.PlayerO == UserName))
+                    {
+                        PerformAction();
+                    }
+
+                    
+                }
                 return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
             }
         }
@@ -85,13 +103,27 @@ public class Index : PageModel
     {
         var state = _gameRepository.FindSavedGame(GameName);
 
-        var configName = GameName.Split('_')[0];
+        if (string.IsNullOrEmpty(state))
+        {
+            // Handle the error gracefully, maybe return a message or redirect
+            throw new Exception("Game state not found or is empty.");
+        }
+        
+        GameState savedGame = JsonConvert.DeserializeObject<GameState>(state);
 
+        if (savedGame.PlayerX != UserName && savedGame.PlayerO == "Player-0")
+        {
+            savedGame.PlayerO = UserName;
+        }
+        
         var config = GetConfiguration.LoadGameConfiguration(state);
 
         TicTacTwoBrain = new TicTacTwoBrain(config);
-
-        TicTacTwoBrain.SetGameStateJson(state);
+        
+        TicTacTwoBrain.SetGameStateJson(JsonConvert.SerializeObject(savedGame));
+        
+        GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), UserName);
+        
         UpdateActionSelectList();
         CheckGameOver();
     }
@@ -99,8 +131,8 @@ public class Index : PageModel
     private void StartNewGame()
     {
         var gameConfig = _configRepository.GetConfigurationByName(ConfigName);
-        TicTacTwoBrain = new TicTacTwoBrain(gameConfig);
-        GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig());
+        TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX:UserName);
+        GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), UserName);
     }
 
     private void CheckGameOver()
@@ -108,7 +140,9 @@ public class Index : PageModel
         var winner = TicTacTwoBrain.CheckWin();
         if (winner != null)
         {
-            string winnerName = winner == EGamePiece.X ? "Player X" : "Player O";
+            var gameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
+            
+            string winnerName = winner == EGamePiece.X ? gameState.PlayerX : gameState.PlayerO;
             ViewData["Message"] = $"{winnerName} wins!";
             IsGameOver = true;
         }
@@ -119,28 +153,37 @@ public class Index : PageModel
         }
     }
 
-    private IActionResult PerformAction()
+    private void PerformAction()
     {
+        bool hasPiecesLeft = TicTacTwoBrain.HasPiecesLeft();
+        bool canMovePiece = TicTacTwoBrain.CanMovePiece();
+        bool canMoveGrid = TicTacTwoBrain.CanMoveGrid();
+
         switch (SelectedAction)
         {
-            case "new":
-                TicTacTwoBrain.PlaceNewPiece(CoordinateX, CoordinateY);
+            case "Place new button":
+                if (hasPiecesLeft)
+                {
+                    TicTacTwoBrain.PlaceNewPiece(CoordinateX, CoordinateY);
+                }
                 break;
-            case "old":
-                TicTacTwoBrain.MoveExistingPiece(OldCoordinateX, OldCoordinateY, CoordinateX, CoordinateY);
+            case "Move old button":
+                if (canMovePiece)
+                {
+                    TicTacTwoBrain.MoveExistingPiece(OldCoordinateX, OldCoordinateY, NewCoordinateX, NewCoordinateY);
+                }
                 break;
-            case "grid":
-                TicTacTwoBrain.MoveGrid(CoordinateX, CoordinateY);
+            case "Move grid":
+                if (canMoveGrid)
+                {
+                    TicTacTwoBrain.MoveGrid(CoordinateX, CoordinateY);
+                }
                 break;
             default:
-                return Page();
+                return;
         }
-
-        // Save game state after action is performed
-        GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName,
-            TicTacTwoBrain.GetGameConfig());
+        GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), UserName);
         CheckGameOver();
-        return Page();
     }
 
     private void UpdateActionSelectList()
@@ -149,17 +192,17 @@ public class Index : PageModel
 
         if (TicTacTwoBrain.HasPiecesLeft()) //TODO: SAAB IKKA NUPPE PANNA, VIGA ON MÄNGULAUAS
         {
-            actions.Add("new");
+            actions.Add("Place new button");
         }
 
         if (TicTacTwoBrain.CanMovePiece())
         {
-            actions.Add("old");
+            actions.Add("Move old button");
         }
 
         if (TicTacTwoBrain.CanMoveGrid())
         {
-            actions.Add("grid");
+            actions.Add("Move grid");
         }
 
         ActionSelectList = new SelectList(actions);

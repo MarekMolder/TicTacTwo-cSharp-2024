@@ -21,7 +21,7 @@
             <form method="post" style="display:inline;">
                 <input type="hidden" name="CoordinateX" value="@x" />
                 <input type="hidden" name="CoordinateY" value="@y" />
-                <input type="hidden" name="SelectedAction" value="new" />
+                <input type="hidden" name="SelectedAction" value="Place new button" />
                 <button type="submit" class="btn btn-warning">Place</button>
             </form>
             }
@@ -30,7 +30,7 @@
             <form method="post" style="display:inline;">
                 <input type="hidden" name="CoordinateX" value="@x" />
                 <input type="hidden" name="CoordinateY" value="@y" />
-                <input type="hidden" name="SelectedAction" value="new" />
+                <input type="hidden" name="SelectedAction" value="Place new button" />
                 <button type="submit" class="btn btn-outline-primary">Place</button>
             </form>
             }
@@ -72,10 +72,10 @@
         <input asp-for="OldCoordinateX" class="form-control" />
         <label asp-for="OldCoordinateY" class="control-label">Old Coordinate Y</label>
         <input asp-for="OldCoordinateY" class="form-control" />
-        <label asp-for="CoordinateX" class="control-label">New Coordinate X</label>
-        <input asp-for="CoordinateX" class="form-control" />
-        <label asp-for="CoordinateY" class="control-label">New Coordinate Y</label>
-        <input asp-for="CoordinateY" class="form-control" />
+        <label asp-for="NewCoordinateX" class="control-label">New Coordinate X</label>
+        <input asp-for="NewCoordinateX" class="form-control" />
+        <label asp-for="NewCoordinateY" class="control-label">New Coordinate Y</label>
+        <input asp-for="NewCoordinateY" class="form-control" />
     </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
@@ -91,8 +91,8 @@
 
         function toggleFields() {
             const selectedValue = selectedActionElement.value;
-            newFields.style.display = selectedValue === "new" || selectedValue === "grid" ? "block" : "none";
-            oldFields.style.display = selectedValue === "old" ? "block" : "none";
+            newFields.style.display = selectedValue === "Place new button" || selectedValue === "Move grid" ? "block" : "none";
+            oldFields.style.display = selectedValue === "Move old button" ? "block" : "none";
         }
 
         toggleFields();

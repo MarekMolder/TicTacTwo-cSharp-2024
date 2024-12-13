@@ -47,6 +47,8 @@ namespace WebApp.Pages.CustomGame
 
         [BindProperty]
         public int GridY { get; set; }
+        
+        [BindProperty(SupportsGet = true)] public string UserName { get; set; } = default!;
 
         public void OnGet()
         {
@@ -70,7 +72,7 @@ namespace WebApp.Pages.CustomGame
         {
             var config = new Domain.GameConfiguration()
             {
-                Name = "CustomGame",
+                Name = "CustomGame_" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 BoardSizeWidth = BoardWidth,
                 BoardSizeHeight = BoardHeight,
                 PiecesNumber = PieceNumber,
@@ -87,7 +89,7 @@ namespace WebApp.Pages.CustomGame
             _configRepository.SaveConfiguration(config);
                
                 
-            return RedirectToPage("/PlayGame/Index", new { configName = config.Name });
+            return RedirectToPage("/PlayGame/Index", new { configName = config.Name, username = UserName });
         }
     }
 }
