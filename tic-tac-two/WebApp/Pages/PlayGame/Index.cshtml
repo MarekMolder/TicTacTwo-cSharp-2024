@@ -2,7 +2,7 @@
 @using GameBrain
 @model WebApp.Pages.Index
 
-<h1>Trips Traps Trull</h1>
+<h1>TIC-TAC-TWO</h1>
 
 <p>Next move by: @Model.TicTacTwoBrain.CurrentPlayer</p>
 <p>@ViewData["Message"]</p>
@@ -18,19 +18,22 @@
             {
             @if (Model.TicTacTwoBrain.IsCellInGrid(x, y))
             {
-            <form method="post" style="display:inline;">
+            <form method="post" style="display:inline;" class="game-form">
                 <input type="hidden" name="CoordinateX" value="@x" />
                 <input type="hidden" name="CoordinateY" value="@y" />
-                <input type="hidden" name="SelectedAction" value="Place new button" />
+                <input type="hidden" name="SelectedAction" id="selectedAction" value="" />
+                <input type="hidden" name="OldCoordinateX" id="oldCoordinateX" value="" />
+                <input type="hidden" name="OldCoordinateY" id="oldCoordinateY" value="" />
                 <button type="submit" class="btn btn-warning">Place</button>
             </form>
-            }
-            else
+            } else
             {
-            <form method="post" style="display:inline;">
+            <form method="post" style="display:inline;" class="game-form">
                 <input type="hidden" name="CoordinateX" value="@x" />
                 <input type="hidden" name="CoordinateY" value="@y" />
-                <input type="hidden" name="SelectedAction" value="Place new button" />
+                <input type="hidden" name="SelectedAction" id="selectedAction" value="" />
+                <input type="hidden" name="OldCoordinateX" id="oldCoordinateX" value="" />
+                <input type="hidden" name="OldCoordinateY" id="oldCoordinateY" value="" />
                 <button type="submit" class="btn btn-outline-primary">Place</button>
             </form>
             }
@@ -39,11 +42,24 @@
             {
             @if (Model.TicTacTwoBrain.IsCellInGrid(x, y))
             {
-            <button type="button" class="btn btn-warning" disabled>@(Model.TicTacTwoBrain.GameBoard[x][y])</button>
-            }
-            else
+            <form method="post" style="display:inline;" class="game-form">
+                <input type="hidden" name="CoordinateX" value="@x" />
+                <input type="hidden" name="CoordinateY" value="@y" />
+                <input type="hidden" name="SelectedAction" id="selectedAction" value="" />
+                <input type="hidden" name="OldCoordinateX" id="oldCoordinateX" value="" />
+                <input type="hidden" name="OldCoordinateY" id="oldCoordinateY" value="" />
+                <button type="submit" class="btn btn-warning">@Model.TicTacTwoBrain.GameBoard[x][y]</button>
+            </form>
+            } else
             {
-            <button type="button" class="btn btn-outline-primary" disabled>@(Model.TicTacTwoBrain.GameBoard[x][y])</button>
+            <form method="post" style="display:inline;" class="game-form">
+                <input type="hidden" name="CoordinateX" value="@x" />
+                <input type="hidden" name="CoordinateY" value="@y" />
+                <input type="hidden" name="SelectedAction" id="selectedAction" value="" />
+                <input type="hidden" name="OldCoordinateX" id="oldCoordinateX" value="" />
+                <input type="hidden" name="OldCoordinateY" id="oldCoordinateY" value="" />
+                <button type="submit" class="btn btn-outline-primary">@Model.TicTacTwoBrain.GameBoard[x][y]</button>
+            </form>
             }
             }
         </td>
@@ -54,29 +70,14 @@
 
 <form method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @foreach (var action in Model.ActionSelectList)
+    {
     <div class="form-group">
-        <label asp-for="SelectedAction" class="control-label"></label>
-        <select asp-for="SelectedAction" class="form-select" asp-items="Model.ActionSelectList" id="SelectedAction">
-        </select>
+        <input type="checkbox" id="@action" name="SelectedAction" value="@action" />
+        <label for="@action">@action</label>
     </div>
-
-    <div class="form-group" id="new-fields" style="display:none;">
-        <label asp-for="CoordinateX" class="control-label">Coordinate X</label>
-        <input asp-for="CoordinateX" class="form-control" />
-        <label asp-for="CoordinateY" class="control-label">Coordinate Y</label>
-        <input asp-for="CoordinateY" class="form-control" />
-    </div>
-
-    <div class="form-group" id="old-fields" style="display:none;">
-        <label asp-for="OldCoordinateX" class="control-label">Old Coordinate X</label>
-        <input asp-for="OldCoordinateX" class="form-control" />
-        <label asp-for="OldCoordinateY" class="control-label">Old Coordinate Y</label>
-        <input asp-for="OldCoordinateY" class="form-control" />
-        <label asp-for="NewCoordinateX" class="control-label">New Coordinate X</label>
-        <input asp-for="NewCoordinateX" class="form-control" />
-        <label asp-for="NewCoordinateY" class="control-label">New Coordinate Y</label>
-        <input asp-for="NewCoordinateY" class="form-control" />
-    </div>
+    }
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
@@ -85,18 +86,64 @@
 <partial name="_ValidationScriptsPartial" />
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const selectedActionElement = document.getElementById("SelectedAction");
-        const newFields = document.getElementById("new-fields");
-        const oldFields = document.getElementById("old-fields");
+        const refreshInterval = 10000; // = 10 sekundit
 
-        function toggleFields() {
-            const selectedValue = selectedActionElement.value;
-            newFields.style.display = selectedValue === "Place new button" || selectedValue === "Move grid" ? "block" : "none";
-            oldFields.style.display = selectedValue === "Move old button" ? "block" : "none";
+        // Värskendage lehte iga 10 sekundi tagant
+        setInterval(function() {
+            location.reload(); // Lehe värskendamine
+        }, refreshInterval);
+    
+        const checkboxes = document.querySelectorAll('input[name="SelectedAction"]');
+        const forms = document.querySelectorAll('.game-form');
+        let moveOldButtonSelected = false;
+        let oldCoordinateX = null;
+        let oldCoordinateY = null;
+
+        function updateSelectedActionValue() {
+            const selectedCheckbox = document.querySelector('input[name="SelectedAction"]:checked');
+            const selectedActionValue = selectedCheckbox ? selectedCheckbox.value : "";
+            forms.forEach(form => {
+                const selectedActionInput = form.querySelector('input[name="SelectedAction"]');
+                selectedActionInput.value = selectedActionValue;
+            });
+
+            if (selectedActionValue === "MoveOldButton") {
+                moveOldButtonSelected = true;
+            } else {
+                moveOldButtonSelected = false;
+            }
         }
 
-        toggleFields();
-        selectedActionElement.addEventListener("change", toggleFields);
+        function handleFormSubmission(event) {
+            if (moveOldButtonSelected) {
+                event.preventDefault(); // peatab vormi esitamise
+
+                const form = event.target.closest("form");
+                const x = form.querySelector('input[name="CoordinateX"]').value;
+                const y = form.querySelector('input[name="CoordinateY"]').value;
+
+                if (oldCoordinateX === null && oldCoordinateY === null) {
+                    oldCoordinateX = x;
+                    oldCoordinateY = y;
+                } else {
+                    form.querySelector('input[name="OldCoordinateX"]').value = oldCoordinateX;
+                    form.querySelector('input[name="OldCoordinateY"]').value = oldCoordinateY;
+                    form.submit(); // esitab vormi teisel klikkimisel
+                    oldCoordinateX = null;
+                    oldCoordinateY = null;
+                }
+            }
+        }
+
+        // Add change event listener to checkboxes
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelectedActionValue);
+        });
+
+        // Add submit event listener to forms
+        forms.forEach(form => {
+            form.addEventListener('submit', handleFormSubmission);
+        });
     });
 </script>
 }

@@ -34,12 +34,8 @@ public class Index : PageModel
     [BindProperty] public int OldCoordinateX { get; set; }
 
     [BindProperty] public int OldCoordinateY { get; set; }
-    
-    [BindProperty] public int NewCoordinateX { get; set; }
 
-    [BindProperty] public int NewCoordinateY { get; set; }
-
-    public SelectList ActionSelectList { get; set; } = default!;
+    public List<string> ActionSelectList { get; set; } = default!;
 
     [BindProperty(SupportsGet = true)] public int GameId { get; set; }
 
@@ -161,19 +157,19 @@ public class Index : PageModel
 
         switch (SelectedAction)
         {
-            case "Place new button":
+            case "PlaceNewButton":
                 if (hasPiecesLeft)
                 {
                     TicTacTwoBrain.PlaceNewPiece(CoordinateX, CoordinateY);
                 }
                 break;
-            case "Move old button":
+            case "MoveOldButton":
                 if (canMovePiece)
                 {
-                    TicTacTwoBrain.MoveExistingPiece(OldCoordinateX, OldCoordinateY, NewCoordinateX, NewCoordinateY);
+                    TicTacTwoBrain.MoveExistingPiece(OldCoordinateX, OldCoordinateY, CoordinateX, CoordinateY);
                 }
                 break;
-            case "Move grid":
+            case "MoveGrid":
                 if (canMoveGrid)
                 {
                     TicTacTwoBrain.MoveGrid(CoordinateX, CoordinateY);
@@ -192,19 +188,19 @@ public class Index : PageModel
 
         if (TicTacTwoBrain.HasPiecesLeft()) //TODO: SAAB IKKA NUPPE PANNA, VIGA ON MÄNGULAUAS
         {
-            actions.Add("Place new button");
+            actions.Add("PlaceNewButton");
         }
 
         if (TicTacTwoBrain.CanMovePiece())
         {
-            actions.Add("Move old button");
+            actions.Add("MoveOldButton");
         }
 
         if (TicTacTwoBrain.CanMoveGrid())
         {
-            actions.Add("Move grid");
+            actions.Add("MoveGrid");
         }
 
-        ActionSelectList = new SelectList(actions);
+        ActionSelectList = actions;
     }
 }
