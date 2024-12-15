@@ -22,7 +22,7 @@ public class Program
     public static void Main()
     {
         // Flag to select whether to use a database or JSON storage
-        bool useDatabase = false; // Set to `false` to use JSON instead of the database
+        bool useDatabase = true; // Set to `false` to use JSON instead of the database
 
         // Declare the repositories for game data and configuration data
         IGameRepository gameRepository;

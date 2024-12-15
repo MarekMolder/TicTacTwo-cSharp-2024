@@ -6,28 +6,17 @@ using MenuSystem;
 
 namespace ConsoleApp;
 
-/// <summary>
-/// The Menus class handles the game's user interface, managing menu displays and user interactions.
-/// </summary>
 public class Menus
 {
     private readonly IGameRepository _gameRepository;
     private readonly IConfigRepository _configRepository;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Menus"/> class.
-    /// </summary>
-    /// <param name="configRepository">The repository for game configurations.</param>
-    /// <param name="gameRepository">The repository for game data.</param>
+    
     public Menus(IConfigRepository configRepository, IGameRepository gameRepository)
     {
         _configRepository = configRepository;
         _gameRepository = gameRepository;
     }
     
-    /// <summary>
-    /// Displays the main menu of the game and allows the user to select an option.
-    /// </summary>
     public void RunMainMenu()
     {
         // Main menu prompt with ASCII art
@@ -56,10 +45,7 @@ public class Menus
         // Create and run the menu with the defined prompt and options
         new Menu(prompt, options).Run();
     }
-
-    /// <summary>
-    /// Displays the new game menu where the user can select the game configuration.
-    /// </summary>
+    
     public void RunNewGameMenu()
     {
         // Prompt for selecting a game configuration
@@ -89,22 +75,17 @@ public class Menus
         new Menu(prompt, options).Run();
     }
 
-    /// <summary>
-    /// Starts the game with the selected game configuration.
-    /// </summary>
-    /// <param name="gameConfig">The game configuration to use for the new game.</param>
     private void StartGame(GameConfiguration gameConfig)
     {
+        Console.WriteLine("If you want Ai to be player then name playerX / playerO or both 'AI'");
+        
         var (playerX, playerO) = CustomInput.InputPlayerNames();
         var gameController = new GameController(_gameRepository, _configRepository);
         GameState gameState = new GameState(gameConfig, playerX, playerO);
-        
+
         gameController.PlayGame(gameConfig, gameState);
     }
 
-    /// <summary>
-    /// Starts a custom game configuration.
-    /// </summary>
     private void StartCustomGame()
     {
         // Küsib kasutajalt kohandatud konfiguratsiooni ja mängijate nimed
@@ -119,10 +100,7 @@ public class Menus
         // Alusta uut mängu kohandatud konfiguratsiooniga
         gameController.PlayGame(customConfig, gameState);
     }
-
-    /// <summary>
-    /// Displays the saved games and allows the user to select a game to load.
-    /// </summary>
+    
     private void LoadGame()
     {
         const string prompt = "Select a saved game to load:";
@@ -144,11 +122,7 @@ public class Menus
 
         new Menu(prompt, options).Run();
     }
-
-    /// <summary>
-    /// Loads the selected saved game from the repository and restores the game state.
-    /// </summary>
-    /// <param name="gameName">The name of the saved game to load.</param>
+    
     private void LoadSavedGame(string gameName)
     {
         var savedGameContent = _gameRepository.FindSavedGame(gameName);
@@ -173,9 +147,6 @@ public class Menus
         gameController.PlayGame(gameConfig, gameState);
     }
     
-    /// <summary>
-    /// Displays the game instructions to the user.
-    /// </summary>
     private void DisplayInstructions()
     {
         Console.Clear(); // Clear the console for a fresh display
@@ -189,10 +160,7 @@ public class Menus
         WaitForEnter(); // Wait for the user to press Enter
         RunMainMenu(); // Return to the main menu
     }
-
-    /// <summary>
-    /// Displays information about the game and its creator.
-    /// </summary>
+    
     private void DisplayAboutInfo()
     {
         Console.Clear(); // Clear the console for a fresh display
@@ -202,9 +170,6 @@ public class Menus
         RunMainMenu(); // Return to the main menu
     }
     
-    /// <summary>
-    /// Exits the game application.
-    /// </summary>
     private void ExitGame()
     {
         Console.WriteLine("\nPress Enter to exit..."); 
@@ -212,9 +177,6 @@ public class Menus
         Environment.Exit(0); // Exit the application
     }
     
-    /// <summary>
-    /// Waits for the user to press the Enter key.
-    /// </summary>
     private void WaitForEnter()
     {
         ConsoleKey keyPressed;

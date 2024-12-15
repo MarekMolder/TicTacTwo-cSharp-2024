@@ -34,7 +34,7 @@ public abstract class ConfigRepositoryHardCoded
             Name = "Regular", // Name of the configuration
             BoardSizeWidth = 5, // Width of the game board
             BoardSizeHeight = 5, // Height of the game board
-            PiecesNumber = 4, // Number of pieces available for each player
+            PiecesNumber = 25, // Number of pieces available for each player
             WinCondition = 3, // Number of pieces in a row needed to win
             UsesGrid = true, // Indicates that a grid is used
             GridSizeHeight = 3, // Height of the grid

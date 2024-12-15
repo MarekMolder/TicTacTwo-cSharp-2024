@@ -40,8 +40,10 @@ public class CustomInput
             playerName = Console.ReadLine()!;
 
             // Check if the player name is valid
-            if (!string.IsNullOrWhiteSpace(playerName) && 
-                (otherPlayerName == null || playerName != otherPlayerName))
+            if (!string.IsNullOrWhiteSpace(playerName) &&
+                (otherPlayerName == null || 
+                 string.Equals(playerName, otherPlayerName, StringComparison.OrdinalIgnoreCase) || // Allow "AI" vs "AI"
+                 !string.Equals(playerName, otherPlayerName, StringComparison.OrdinalIgnoreCase)))
             {
                 break; // Exit loop if valid
             }

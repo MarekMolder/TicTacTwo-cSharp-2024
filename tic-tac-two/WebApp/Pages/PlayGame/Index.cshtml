@@ -5,7 +5,27 @@
 <h1>TIC-TAC-TWO</h1>
 
 <p>Next move by: @Model.TicTacTwoBrain.CurrentPlayer</p>
+<p>Pieces left for Player X: @Model.TicTacTwoBrain.PiecesLeftX</p>
+<p>Pieces left for Player O: @Model.TicTacTwoBrain.PiecesLeftO</p>
+
+@if (TempData["PlayerX"] != null)
+{
+    <p>Player X is: @TempData["PlayerX"]</p>
+}
+
+@if (TempData["PlayerO"] != null)
+{
+<p>Player O is: @TempData["PlayerO"]</p>
+}
+
 <p>@ViewData["Message"]</p>
+
+@if (TempData["ErrorMessage"] != null)
+{
+<div class="alert alert-warning">
+    @TempData["ErrorMessage"]
+</div>
+}
 
 <table class="table table-bordered">
     @for (int y = 0; y < Model.TicTacTwoBrain.DimensionY; y++)
@@ -73,18 +93,18 @@
 
     @foreach (var action in Model.ActionSelectList)
     {
-    <div class="form-group">
-        <input type="checkbox" id="@action" name="SelectedAction" value="@action" />
-        <label for="@action">@action</label>
-    </div>
+        <div class="form-group">
+            <input type="checkbox" id="@action" name="SelectedAction" value="@action" />
+            <label for="@action">@action</label>
+        </div>
     }
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
 @section Scripts {
-<partial name="_ValidationScriptsPartial" />
-<script>
+    <partial name="_ValidationScriptsPartial"/>
+    <script>
     document.addEventListener("DOMContentLoaded", function() {
         const refreshInterval = 10000; // = 10 sekundit
 

@@ -16,109 +16,148 @@ public class GameController
         _gameRepository = gameRepository;
         _configRepository = configRepository;
     }
-    
-    public void PlayGame(GameConfiguration chosenConfig,  GameState gameState)
-    {
-        
-        if (gameState.GameBoard == null)
-        {
-            // Kui mängulauad pole salvestatud, alustame uut mängu
-            gameInstance = new TicTacTwoBrain(chosenConfig, gameState.PlayerX, gameState.PlayerO);
-        }
-        else
-        {
-            // Kui mängulaua olek on olemas, laadime vana mängu
-            gameInstance = new TicTacTwoBrain(chosenConfig, gameState.PlayerX, gameState.PlayerO, gameState.GridPositionX, gameState.GridPositionY, gameState.MovesMadeX, gameState.MovesMadeO);
-            gameInstance.SetGameBoard(gameState.GameBoard);
-            gameInstance.CurrentPlayer = gameState.CurrentPlayer;
-            gameInstance.PiecesLeftX = gameState.PiecesLeftX;
-            gameInstance.PiecesLeftO = gameState.PiecesLeftO;
-            gameInstance.MovesMadeX = gameState.MovesMadeX;
-            gameInstance.MovesMadeO = gameState.MovesMadeO;
-        }
 
-        var currentPlayerName = gameState.CurrentPlayer == EGamePiece.X ? gameState.PlayerX : gameState.PlayerO;
+    public void PlayGame(GameConfiguration chosenConfig, GameState gameState)
+{
+    if (gameState.GameBoard == null)
+    {
+        // Kui mängulauad pole salvestatud, alustame uut mängu
+        gameInstance = new TicTacTwoBrain(chosenConfig, gameState.PlayerX, gameState.PlayerO);
+    }
+    else
+    {
+        // Kui mängulaua olek on olemas, laadime vana mängu
+        gameInstance = new TicTacTwoBrain(chosenConfig, gameState.PlayerX, gameState.PlayerO, 
+            gameState.GridPositionX, gameState.GridPositionY, gameState.MovesMadeX, gameState.MovesMadeO);
+        gameInstance.SetGameBoard(gameState.GameBoard);
+        gameInstance.CurrentPlayer = gameState.CurrentPlayer;
+        gameInstance.PiecesLeftX = gameState.PiecesLeftX;
+        gameInstance.PiecesLeftO = gameState.PiecesLeftO;
+        gameInstance.MovesMadeX = gameState.MovesMadeX;
+        gameInstance.MovesMadeO = gameState.MovesMadeO;
+    }
+
+    var currentPlayerName = gameState.CurrentPlayer == EGamePiece.X ? gameState.PlayerX : gameState.PlayerO;
 
     do
     {
         DisplayBoard(gameInstance, currentPlayerName, gameState.PlayerX, gameState.PlayerO);
 
-        var canMovePiece = gameInstance.CanMovePiece();
-        var canMoveGrid = gameInstance.CanMoveGrid();
-        var hasPiecesLeft = gameInstance.HasPiecesLeft();
-
-        string promptMessage;
-        List<string> options = new List<string>();
-
-        // Määrame, millised valikud on saadaval sõltuvalt tingimustest
-        if (!hasPiecesLeft)
+        // Check if AI is playing
+        if (string.Equals(currentPlayerName, "AI", StringComparison.OrdinalIgnoreCase))
         {
-            promptMessage = "You have no pieces left.";
-            if (canMovePiece) options.Add("old");
-            if (canMoveGrid) options.Add("grid");
-            options.Add("save");
-            options.Add("exit");
+            Console.WriteLine("AI is thinking...");
+            var hasPiecesLeft = gameInstance.HasPiecesLeft();
+
+            if (hasPiecesLeft)
+            {
+                gameInstance.AiMove();
+            }
+
+            // Check end game conditions for AI
+            if (CheckEndGameConditions(gameInstance, gameState.PlayerX, gameState.PlayerO))
+            {
+                Console.WriteLine("Game over! Press any key to exit.");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+
+            // Switch player to the next one
+            currentPlayerName = currentPlayerName == gameState.PlayerX ? gameState.PlayerO : gameState.PlayerX;
         }
         else
         {
-            promptMessage = $"Do you want to place a new piece{(canMovePiece ? ", move an existing piece" : "")}{(canMoveGrid ? ", move the grid" : "")}, save the game or exit the game?";
-            if (canMovePiece) options.Add("old");
-            if (canMoveGrid) options.Add("grid");
-            options.Add("new");
-            options.Add("save");
-            options.Add("exit");
+            var canMovePiece = gameInstance.CanMovePiece();
+            var canMoveGrid = gameInstance.CanMoveGrid();
+            var hasPiecesLeft = gameInstance.HasPiecesLeft();
+
+            string promptMessage;
+            List<string> options = new List<string>();
+
+            // Define options based on available actions
+            if (!hasPiecesLeft)
+            {
+                promptMessage = "You have no pieces left.";
+                if (canMovePiece) options.Add("old");
+                if (canMoveGrid) options.Add("grid");
+                options.Add("save");
+                options.Add("exit");
+            }
+            else
+            {
+                promptMessage =
+                    $"Do you want to place a new piece{(canMovePiece ? ", move an existing piece" : "")}{(canMoveGrid ? ", move the grid" : "")}, save the game or exit the game?";
+                if (canMovePiece) options.Add("old");
+                if (canMoveGrid) options.Add("grid");
+                options.Add("new");
+                options.Add("save");
+                options.Add("exit");
+            }
+
+            // Show available options
+            while (true)
+            {
+                Console.WriteLine(promptMessage);
+                Console.WriteLine($"Options: {string.Join("/", options)}");
+
+                var response = Console.ReadLine()?.Trim().ToLower();
+
+                if (response == "new")
+                {
+                    PlaceNewPiece();
+                    break;
+                }
+
+                if (response == "old" && canMovePiece)
+                {
+                    MoveExistingPiece();
+                    break;
+                }
+
+                if (response == "grid" && canMoveGrid)
+                {
+                    MoveGrid();
+                    break;
+                }
+
+                if (response == "save")
+                {
+                    
+                    if (gameState.CurrentPlayer == EGamePiece.X)
+                    {
+                        gameState.PiecesLeftX++; // Decrement pieces left for player X
+                    }
+                    else
+                    {
+                        gameState.PiecesLeftO++; // Decrement pieces left for player O
+                    }
+                    _gameRepository.Savegame(gameInstance.GetGameStateJson(), chosenConfig, gameState.PlayerX, gameState.PlayerO);
+                    currentPlayerName = currentPlayerName == gameState.PlayerX ? gameState.PlayerO : gameState.PlayerX;
+                    break;
+                }
+
+                if (response == "exit")
+                {
+                    Program.Main();
+                }
+
+                Console.WriteLine("Invalid input. Please try again.");
+            }
+
+            // Check end game conditions for the player
+            if (CheckEndGameConditions(gameInstance, gameState.PlayerX, gameState.PlayerO))
+            {
+                Console.WriteLine("Game over! Press any key to exit.");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+
+            // Switch player to the next one
+            currentPlayerName = currentPlayerName == gameState.PlayerX ? gameState.PlayerO : gameState.PlayerX;
         }
+    } while (true);
+}
 
-        // Kuvame kasutajale valikud
-        while (true)
-        {
-            Console.WriteLine(promptMessage);
-            Console.WriteLine($"Options: {string.Join("/", options)}");
-
-            var response = Console.ReadLine()?.Trim().ToLower();
-
-            if (response == "new")
-            {
-                PlaceNewPiece();
-                break;
-            }
-
-            if (response == "old" && canMovePiece)
-            {
-                MoveExistingPiece();
-                break;
-            }
-
-            if (response == "grid" && canMoveGrid)
-            {
-                MoveGrid();
-                break;
-            }
-
-            if (response == "save")
-            {
-                _gameRepository.Savegame(gameInstance.GetGameStateJson(), chosenConfig, gameState.PlayerX, gameState.PlayerO);
-                break;
-            }
-
-            if (response == "exit")
-            {
-                Program.Main();
-            }
-
-            Console.WriteLine("Invalid input. Please try again.");
-        }
-
-        if (CheckEndGameConditions(gameInstance, gameState.PlayerX, gameState.PlayerO))
-        {
-            break;
-        }
-
-        currentPlayerName = currentPlayerName == gameState.PlayerX ? gameState.PlayerO : gameState.PlayerX;
-
-        } while (true);
-    }
-    
     private void DisplayBoard(TicTacTwoBrain gameInstance, string currentPlayerName, string playerX, string playerO)
     {
         Console.Clear();

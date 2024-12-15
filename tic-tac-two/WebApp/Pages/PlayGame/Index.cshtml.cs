@@ -24,6 +24,8 @@ public class Index : PageModel
     [BindProperty(SupportsGet = true)] public string ConfigName { get; set; } = default!;
 
     public TicTacTwoBrain TicTacTwoBrain { get; set; } = default!;
+    
+    public GameState GameState { get; set; } = default!;
 
     [BindProperty] public string SelectedAction { get; set; } = default!;
 
@@ -51,6 +53,10 @@ public class Index : PageModel
         if (!string.IsNullOrEmpty(GameName))
         {
             LoadExistingGame();
+            GameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
+                
+            TempData["PlayerX"] = GameState.PlayerX;
+            TempData["PlayerO"] = GameState.PlayerO;
         }
         else if (!string.IsNullOrEmpty(ConfigName))
         {
@@ -68,19 +74,22 @@ public class Index : PageModel
             LoadExistingGame();
             if (!IsGameOver)
             {
+                GameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
                 
-                // TODO: KONTROLLI VEEL ET KUI KÄIB X SIIS OLEKS USERNAME X
-                var gameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
+                TempData["PlayerX"] = GameState.PlayerX;
+                TempData["PlayerO"] = GameState.PlayerO;
 
-                if (gameState.PlayerX == UserName || gameState.PlayerO == UserName)
+                if (GameState.PlayerX == UserName || GameState.PlayerO == UserName)
                 {
-                    if ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && gameState.PlayerX == UserName) || 
-                        (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && gameState.PlayerO == UserName))
+                    if ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && GameState.PlayerX == UserName) || 
+                        (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && GameState.PlayerO == UserName))
                     {
                         PerformAction();
+                    } 
+                    else
+                    {
+                        TempData["ErrorMessage"] = "It's not your turn!";
                     }
-
-                    
                 }
                 return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
             }

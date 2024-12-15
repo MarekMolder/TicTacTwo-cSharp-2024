@@ -2,26 +2,10 @@
 
 namespace GameBrain
 {
-    /// <summary>
-    /// The <see cref="TicTacTwoBrain"/> class represents the core game logic for a Tic-Tac-Toe game
-    /// with additional features like grid manipulation and piece movements. It manages the game state,
-    /// player turns, and actions like moving pieces or grids.
-    /// </summary>
     public class TicTacTwoBrain
     {
         private GameState _gameState;
         
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TicTacTwoBrain"/> class with the specified game configuration,
-        /// players, and initial settings for grid and pieces.
-        /// </summary>
-        /// <param name="gameConfiguration">The game configuration that defines the board size and other settings.</param>
-        /// <param name="playerX">The name of the player who plays as 'X'.</param>
-        /// <param name="playerO">The name of the player who plays as 'O'.</param>
-        /// <param name="gridPositionY">The initial Y position for the grid (default is -1).</param>
-        /// <param name="gridPositionX">The initial X position for the grid (default is -1).</param>
-        /// <param name="movesMadeX">The number of moves made by player X (default is 0).</param>
-        /// <param name="movesMadeO">The number of moves made by player O (default is 0).</param>
         public TicTacTwoBrain(GameConfiguration gameConfiguration, string playerX = "Player-X", string playerO = "Player-0",int gridPositionY = -1, int gridPositionX = -1, int movesMadeX = 0, int movesMadeO = 0)
         {
             var gameBoard = new EGamePiece[gameConfiguration.BoardSizeWidth][];
@@ -63,20 +47,12 @@ namespace GameBrain
             GridSizeHeight = _gameState.GameConfiguration.GridSizeHeight;
             UsesGrid = _gameState.GameConfiguration.UsesGrid;
         }
-
-        /// <summary>
-        /// Gets the current game state as a JSON string.
-        /// </summary>
-        /// <returns>A JSON representation of the game state.</returns>
+        
         public string GetGameStateJson()
         {
             return _gameState.ToString();
         }
-
-        /// <summary>
-        /// Gets the name of the current game configuration.
-        /// </summary>
-        /// <returns>The name of the game configuration.</returns>
+        
         public string GetGameConfigName()
         {
             return _gameState.GameConfiguration.Name;
@@ -101,27 +77,13 @@ namespace GameBrain
             return x >= gridStartX && x <= gridEndX && y >= gridStartY && y <= gridEndY;
         }
         
-        /// <summary>
-        /// Gets the name of the current game configuration.
-        /// </summary>
-        /// <returns>The name of the game configuration.</returns>
         public GameConfiguration GetGameConfig()
         {
             return _gameState.GameConfiguration;
         }
-
-        /// <summary>
-        /// Gets a copy of the current game board.
-        /// </summary>
+        
         public EGamePiece[][] GameBoard => GetBoardCopy(); // Returns a copy of the game board.
         
-        /// <summary>
-        /// Sets the game board to the provided state.
-        /// </summary>
-        /// <param name="gameBoard">The game board to set.</param>
-        /// <exception cref="ArgumentNullException">Thrown if the provided game board is null or empty.</exception>
-        /// <exception cref="ArgumentException">Thrown if the provided game board dimensions do not match the game configuration.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if the grid position exceeds game board bounds.</exception>    
         public void SetGameBoard(EGamePiece[][] gameBoard)
         {
             // Validates and sets the game board to the provided one.
@@ -166,95 +128,51 @@ namespace GameBrain
                 }
             }
         }
-
-        /// <summary>
-        /// Gets or sets the current player (either 'X' or 'O').
-        /// </summary>
+        
         public EGamePiece CurrentPlayer
         {
             get => _gameState.CurrentPlayer;
             set => _gameState.CurrentPlayer = value;
         }
-
-        /// <summary>
-        /// Gets the width of the grid.
-        /// </summary>
+        
         public int GridSizeWidth { get; }
         
-        /// <summary>
-        /// Gets the height of the grid.
-        /// </summary>
         public int GridSizeHeight { get; }
         
-        /// <summary>
-        /// Gets or sets the X position of the grid.
-        /// </summary>
         public int GridPositionX
         {
             get => _gameState.GridPositionX;
             set => _gameState.GridPositionX = value;
         }
         
-        /// <summary>
-        /// Gets or sets the Y position of the grid.
-        /// </summary>
         public int GridPositionY
         {
             get => _gameState.GridPositionY;
             set => _gameState.GridPositionY = value;
         }
         
-        /// <summary>
-        /// Gets the width of the game board.
-        /// </summary>
         public int DimensionX => _gameState.GameBoard.Length; 
         
-        /// <summary>
-        /// Gets the height of the game board.
-        /// </summary>
         public int DimensionY => _gameState.GameBoard[0].Length;
-
-        /// <summary>
-        /// Gets or sets the number of remaining pieces for player 'X'.
-        /// </summary>
+        
         public int PiecesLeftX
         {
             get => _gameState.PiecesLeftX;
             set => _gameState.PiecesLeftX = value;
         }
-
-        /// <summary>
-        /// Gets or sets the number of remaining pieces for player 'O'.
-        /// </summary>
+        
         public int PiecesLeftO
         {
             get => _gameState.PiecesLeftO;
             set => _gameState.PiecesLeftO = value;
         }
-
-        /// <summary>
-        /// Indicates if the game uses a grid.
-        /// </summary>
+        
         public bool UsesGrid { get; }
         
-        /// <summary>
-        /// Gets or sets the number of moves made by player 'X'.
-        /// </summary>
         public int MovesMadeX { get; set; }
         
-        /// <summary>
-        /// Gets or sets the number of moves made by player 'O'.
-        /// </summary>
         public int MovesMadeO { get; set; }
-
-        /// <summary>
-        /// Creates a deep copy of the current game board. This method copies the board's dimensions
-        /// and its content to a new 2D array, ensuring that changes to the copy do not affect the
-        /// original game board.
-        /// </summary>
-        /// <returns>
-        /// A 2D array of type <see cref="EGamePiece"/> representing the current state of the game board.
-        /// </returns>
+        
         private EGamePiece[][] GetBoardCopy()
         {
             var copy = new EGamePiece[DimensionX][];
@@ -269,29 +187,17 @@ namespace GameBrain
             return copy;
         }
         
-        /// <summary>
-        /// Checks if the current player has any remaining pieces to place.
-        /// </summary>
-        /// <returns>True if the current player has pieces left, otherwise false.</returns>
         public bool HasPiecesLeft()
         {
             return _gameState.CurrentPlayer == EGamePiece.X ? _gameState.PiecesLeftX > 0 : _gameState.PiecesLeftO > 0;
         }
         
-        /// <summary>
-        /// Checks if the current player can move a piece based on the number of moves made.
-        /// </summary>
-        /// <returns>True if the player can move a piece, otherwise false.</returns>
         public bool CanMovePiece()
         {
             var movesMade = _gameState.CurrentPlayer == EGamePiece.X ? _gameState.MovesMadeX :_gameState. MovesMadeO;
             return movesMade >= _gameState.GameConfiguration.MovePieceAfterNMove; // Check if the required moves have been made.
         }
         
-        /// <summary>
-        /// Checks if the current player can move the grid based on the number of moves made.
-        /// </summary>
-        /// <returns>True if the player can move the grid, otherwise false.</returns>
         public bool CanMoveGrid()
         {
             var movesMade = _gameState.CurrentPlayer == EGamePiece.X ? _gameState.MovesMadeX : _gameState.MovesMadeO;
@@ -318,13 +224,6 @@ namespace GameBrain
             return true; // Move was successful
         }
         
-        /// <summary>
-        /// Handles moving an existing piece on the game board. The method validates the selected piece,
-        /// checks if the destination is available, and moves the piece accordingly.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="MoveResult"/> indicating the result of moving the piece (successful, invalid move, etc.).
-        /// </returns>
         public bool MoveExistingPiece(int oldX, int oldY, int newX, int newY)
         {
             
@@ -345,12 +244,6 @@ namespace GameBrain
             return true;
         }
         
-        /// <summary>
-        /// Handles moving the grid to new coordinates as specified by the player.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="MoveResult"/> indicating the result of moving the grid (successful, invalid position, etc.).
-        /// </returns>
         public bool MoveGrid(int newGridX, int newGridY)
         {
             // Check if the new grid position is valid
@@ -368,24 +261,12 @@ namespace GameBrain
             return true;
         }
         
-        /// <summary>
-        /// Checks if the given grid position is valid, ensuring that the grid remains within the bounds of the game board.
-        /// </summary>
-        /// <param name="x">The new x-coordinate of the grid.</param>
-        /// <param name="y">The new y-coordinate of the grid.</param>
-        /// <returns>
-        /// <c>true</c> if the new grid position is valid; otherwise, <c>false</c>.
-        /// </returns>
         private bool IsValidGridPosition(int x, int y)
         {
             // Check if the grid position is within the dimensions of the board
             return x >= 0 && x + GridSizeWidth <= DimensionX && y >= 0 && y + GridSizeHeight <= DimensionY;
         }
         
-        /// <summary>
-        /// Updates the state of the player who made the last move, adjusting the number of pieces left
-        /// and the number of moves made by the current player.
-        /// </summary>
         private void UpdatePlayerStateAfterMove()
         {
             // Update player state based on which piece is currently active
@@ -401,37 +282,18 @@ namespace GameBrain
             }
         }
         
-        /// <summary>
-        /// Switches the current player between X and O.
-        /// </summary>
         public void SwitchPlayer()
         {
             // Toggle the current player between X and O
             _gameState.CurrentPlayer = _gameState.CurrentPlayer == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
         }
         
-        
-        /// <summary>
-        /// Checks if the given coordinates (x, y) are within the bounds of the game board.
-        /// </summary>
-        /// <param name="x">The x-coordinate.</param>
-        /// <param name="y">The y-coordinate.</param>
-        /// <returns>
-        /// <c>true</c> if the coordinates are within the board's dimensions; otherwise, <c>false</c>.
-        /// </returns>
         public bool IsWithinBoard(int x, int y)
         {
             // Validate the coordinates against the board's dimensions
             return x >= 0 && x < DimensionX && y >= 0 && y < DimensionY;
         }
         
-        /// <summary>
-        /// Checks if there is a winner based on the current state of the game board or grid.
-        /// If no winner is found, <c>null</c> is returned.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="EGamePiece"/> representing the winning player (X or O), or <c>null</c> if no winner.
-        /// </returns>
         public EGamePiece? CheckWin()
         {
             // Check winning condition based on whether the grid is used
@@ -443,40 +305,17 @@ namespace GameBrain
             return CheckWinWithinGrid(); // Check for win within the specified grid
         }
         
-        /// <summary>
-        /// Checks if there is a winner on the entire game board.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="EGamePiece"/> representing the winner (X or O), or <c>null</c> if no winner.
-        /// </returns>
         private EGamePiece? CheckWinOnWholeBoard()
         {
             return CheckAllLines(_gameState.GameBoard, 0, 0, DimensionX, DimensionY); // Check all lines in the whole board
         }
         
-        /// <summary>
-        /// Checks if there is a winner within the current grid boundaries.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="EGamePiece"/> representing the winner (X or O), or <c>null</c> if no winner.
-        /// </returns>
         private EGamePiece? CheckWinWithinGrid()
         {
             return CheckAllLines(_gameState.GameBoard, GridPositionX, GridPositionY, GridSizeWidth,
                 GridSizeHeight); // Check lines within the grid
         }
         
-        /// <summary>
-        /// Checks all lines (rows, columns, and diagonals) within a specific area of the board to find a winner.
-        /// </summary>
-        /// <param name="board">The game board to check.</param>
-        /// <param name="startX">The starting x-coordinate for the check.</param>
-        /// <param name="startY">The starting y-coordinate for the check.</param>
-        /// <param name="width">The width of the area to check.</param>
-        /// <param name="height">The height of the area to check.</param>
-        /// <returns>
-        /// An <see cref="EGamePiece"/> representing the winner (X or O), or <c>null</c> if no winner.
-        /// </returns>
         private EGamePiece? CheckAllLines(EGamePiece[][] board, int startX, int startY, int width, int height)
         {
             // Check rows and columns for a winner
@@ -497,18 +336,6 @@ namespace GameBrain
             return diagWinner; // Return the winner if found or null if no winner
         }
         
-        /// <summary>
-        /// Checks a single line (row, column, or diagonal) for consecutive pieces of the same player.
-        /// </summary>
-        /// <param name="board">The game board to check.</param>
-        /// <param name="startX">The starting x-coordinate for the check.</param>
-        /// <param name="startY">The starting y-coordinate for the check.</param>
-        /// <param name="deltaX">The x-direction delta for each step (1 for right, -1 for left).</param>
-        /// <param name="deltaY">The y-direction delta for each step (1 for down, -1 for up).</param>
-        /// <param name="length">The number of cells in the line to check.</param>
-        /// <returns>
-        /// An <see cref="EGamePiece"/> representing the winner (X or O), or <c>null</c> if no winner.
-        /// </returns>
         private EGamePiece? CheckLine(EGamePiece[][] board, int startX, int startY, int deltaX, int deltaY, int length)
         {
             int count = 0; // Count of consecutive pieces
@@ -543,12 +370,6 @@ namespace GameBrain
             return null; // No winner found
         }
         
-        /// <summary>
-        /// Checks if the game is a draw by evaluating whether the board is full or if neither player can move.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the game is a draw; otherwise, <c>false</c>.
-        /// </returns>
         public bool CheckDraw()
         {
             if (IsBoardFull()) // Check if the board is full
@@ -564,12 +385,6 @@ namespace GameBrain
             return !canMoveX && !canMoveO;
         }
         
-        /// <summary>
-        /// Checks if the game board is completely filled with pieces (no empty spots).
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the board is full; otherwise, <c>false</c>.
-        /// </returns>
         private bool IsBoardFull()
         {
             for (int x = 0; x < DimensionX; x++)
@@ -586,13 +401,6 @@ namespace GameBrain
             return true; // The board is full
         }
         
-        /// <summary>
-        /// Determines if the specified player can move a piece based on their current game state (pieces left and moves made).
-        /// </summary>
-        /// <param name="player">The player to check (X or O).</param>
-        /// <returns>
-        /// <c>true</c> if the player is able to move a piece; otherwise, <c>false</c>.
-        /// </returns>
         private bool CanMovePieceForPlayer(EGamePiece player)
         {
             var movesMade = player == EGamePiece.X ? _gameState.MovesMadeX : _gameState.MovesMadeO; // Get the moves made by the player
@@ -606,6 +414,101 @@ namespace GameBrain
         {
             _gameState = System.Text.Json.JsonSerializer.Deserialize<GameState>(state);
         }
+
+        public void AiMove()
+        {
+            // 1. Try to block the opponent from winning
+            var blockingMove = FindBlockingMove();
+            if (blockingMove != null)
+            {
+                // Block the move by placing the piece at the blocking position
+                PlaceNewPiece(blockingMove.Value.x, blockingMove.Value.y);
+                return;  // Return after blocking the move
+            }
+
+            // 2. If no blocking move, place the piece in a random empty spot or within the grid if it's enabled
+            GetRandomMoveWithinGrid();
+        }
+
+        private (int x, int y)? FindBlockingMove()
+        {
+            // Define the grid boundaries, based on the current grid position and size
+            int startX = UsesGrid ? GridPositionX : 0;
+            int endX = UsesGrid ? GridPositionX + GridSizeWidth : DimensionX;
+            int startY = UsesGrid ? GridPositionY : 0;
+            int endY = UsesGrid ? GridPositionY + GridSizeHeight : DimensionY;
+
+            // Try to block the opponent's winning move within the grid area (if grid is used)
+            for (int x = startX; x < endX; x++)
+            {
+                for (int y = startY; y < endY; y++)
+                {
+                    if (_gameState.GameBoard[x][y] == EGamePiece.Empty)
+                    {
+                        // Temporarily place opponent's piece to see if it forms a winning line
+                        _gameState.GameBoard[x][y] = GetOpponentPlayer();
+
+                        // Check if placing the opponent's piece would lead to a win
+                        if (CheckWinOnWholeBoard() == GetOpponentPlayer())
+                        {
+                            // If the opponent would win, return this position to block
+                            _gameState.GameBoard[x][y] = EGamePiece.Empty; // Revert the move
+                            return (x, y); // Return the blocking position
+                        }
+
+                        // Revert the move
+                        _gameState.GameBoard[x][y] = EGamePiece.Empty;
+                    }
+                }
+            }
+
+            // No blocking move found within the grid boundaries
+            return null;
+        }
+
+        private EGamePiece GetOpponentPlayer()
+        {
+            // If the current player is X, the opponent is O, and vice versa
+            return _gameState.CurrentPlayer == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+        }
+
+        private void GetRandomMoveWithinGrid()
+        {
+            // If the grid is enabled, we prioritize the grid area
+            if (UsesGrid)
+            {
+                for (int x = GridPositionX; x < GridPositionX + GridSizeWidth; x++)
+                {
+                    for (int y = GridPositionY; y < GridPositionY + GridSizeHeight; y++)
+                    {
+                        if (x < DimensionX && y < DimensionY && _gameState.GameBoard[x][y] == EGamePiece.Empty)
+                        {
+                            PlaceNewPiece(x, y);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // If no grid or grid is full, select a random empty spot on the entire board
+            for (int x = 0; x < DimensionX; x++)
+            {
+                for (int y = 0; y < DimensionY; y++)
+                {
+                    if (_gameState.GameBoard[x][y] == EGamePiece.Empty)
+                    {
+                        PlaceNewPiece(x, y);
+                        return;
+                    }
+                }
+            }
+
+            // If no empty spots available (shouldn't happen if the game logic is correct)
+            throw new Exception("No valid moves available.");
+        }
+
+        
+        
     }
     
 }
