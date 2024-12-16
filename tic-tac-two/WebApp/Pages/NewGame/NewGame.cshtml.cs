@@ -17,6 +17,11 @@ public class NewGame : PageModel
     
     [BindProperty(SupportsGet = true)]
     public string UserName { get; set; } = default!;
+    [BindProperty]
+    public string PlayerXorO { get; set; } = default!;
+
+    [BindProperty]
+    public string NumberOfAIs { get; set; } = default!;
     
     public SelectList ConfigSelectList { get; set; } = default!;
     
@@ -47,13 +52,13 @@ public class NewGame : PageModel
         
         if (ConfigName == "Custom")
         {
-            return RedirectToPage("/CustomGame/CustomGame", new { userName = UserName });
+            return RedirectToPage("/CustomGame/CustomGame", new { userName = UserName, playerXor = PlayerXorO, numberOfAIs = NumberOfAIs });
         }
         else
         {
             var selectedConfig = _configRepository.GetConfigurationByName(ConfigName);
             
-            return RedirectToPage("/PlayGame/Index", new { configName = selectedConfig.Name, userName = UserName });
+            return RedirectToPage("/PlayGame/Index", new { configName = selectedConfig.Name, userName = UserName, playerXorO = PlayerXorO, numberOfAIs = NumberOfAIs});
         }
     }
 }

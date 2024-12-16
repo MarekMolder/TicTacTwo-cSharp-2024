@@ -13,7 +13,7 @@ public class GameRepositoryJson : IGameRepository
 {
     private IGameRepository _gameRepositoryImplementation;
     
-    public string Savegame(string jsonStateString, GameConfiguration gameConfig, string username, string? player2 = null)
+    public string Savegame(string jsonStateString, GameConfiguration gameConfig, string? playerX = null, string? playerO = null)
     {
         // Ensure gameConfig.Name is sanitized for file naming
         string sanitizedGameConfigName = string.Join("_", gameConfig.Name.Split(Path.GetInvalidFileNameChars()));
@@ -33,12 +33,16 @@ public class GameRepositoryJson : IGameRepository
                 throw new InvalidOperationException("Invalid JSON data.");
             }
 
-            // Set the PlayerX and PlayerO usernames
-            jsonObject["PlayerX"] = username;
-            if (!string.IsNullOrEmpty(player2))
+            if (!string.IsNullOrEmpty(playerX))
             {
-                jsonObject["PlayerO"] = player2;
+                jsonObject["playerX"] = playerX;
             }
+            
+            if (!string.IsNullOrEmpty(playerO))
+            {
+                jsonObject["PlayerO"] = playerO;
+            }
+            
 
             System.IO.File.WriteAllText(fileName, jsonStateString);
             // Return the sanitized game name, or you can return the full file name if needed.
@@ -72,9 +76,17 @@ public class GameRepositoryJson : IGameRepository
             {
                 throw new InvalidOperationException("Invalid JSON data.");
             }
+            
+            if (jsonObject["PlayerO"]?.GetValue<string>() == "Player-0")
+            {
+                jsonObject["PlayerO"] = username;
+            }
 
-            // Set the PlayerX and PlayerO usernames
-            jsonObject["PlayerO"] = username;
+            // Update PlayerX if the current value is "Player-X" and playerX is not empty
+            if (jsonObject["PlayerX"]?.GetValue<string>() == "Player-X")
+            {
+                jsonObject["PlayerX"] = username;
+            }
             
             // Create a new file with the new name and updated game state
             System.IO.File.WriteAllText(filePath, jsonStateString);
@@ -150,7 +162,7 @@ public class GameRepositoryJson : IGameRepository
                     var playerX = jsonObject["PlayerX"]?.GetValue<string>();
                     var playerO = jsonObject["PlayerO"]?.GetValue<string>();
 
-                    if (!username.Equals(playerX) && playerO == "Player-0")
+                    if (!username.Equals(playerX) && playerO == "Player-0" || !username.Equals(playerO) && playerX == "Player-X")
                     {
                         // Add the file name without extension to the list if username matches
                         matchingFiles.Add(Path.GetFileNameWithoutExtension(filePath));

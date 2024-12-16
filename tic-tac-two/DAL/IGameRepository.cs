@@ -8,7 +8,7 @@ namespace DAL;
 /// </summary>
 public interface IGameRepository
 {
-    public string Savegame(string jsonStateString, GameConfiguration gameConfig, string username, string? player2 = null);
+    public string Savegame(string jsonStateString, GameConfiguration gameConfig, string? playerX = null, string? playerO = null);
     
     List<string> GetSavedGameNames();
     

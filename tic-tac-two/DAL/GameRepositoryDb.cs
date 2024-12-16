@@ -5,23 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL;
 
-/// <summary>
-/// A repository implementation for saving, loading, and managing game data using a database.
-/// </summary>
 public class GameRepositoryDb : IGameRepository
 {
     private readonly AppDbContext _context;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GameRepositoryDb"/> class.
-    /// </summary>
-    /// <param name="context">The database context used to interact with the database.</param>
+    
     public GameRepositoryDb(AppDbContext context)
     {
         _context = context;
     }
     
-    public string Savegame(string jsonStateString, GameConfiguration gameConfig, string? username, string? player2 = null)
+    public string Savegame(string jsonStateString, GameConfiguration gameConfig, string? playerX = null, string? playerO = null)
     {
         // Check if the configuration exists in the database by name
         var existingConfig = _context.GameConfigurations
@@ -45,8 +38,8 @@ public class GameRepositoryDb : IGameRepository
             CreatedAtDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             State = jsonStateString,
             ConfigurationId = gameConfig.Id,
-            GameMakerUsername = username,
-            GameJoinerUsername = player2
+            GameMakerUsername = playerX,
+            GameJoinerUsername = playerO
         };
 
         _context.SaveGames.Add(saveGame);
@@ -84,15 +77,12 @@ public class GameRepositoryDb : IGameRepository
     {
         return _context.SaveGames
             .Include(sg => sg.GameConfiguration)
-            .Where(sg => sg.GameMakerUsername != username && sg.GameJoinerUsername == null)
+            .Where(sg => sg.GameMakerUsername != username && sg.GameJoinerUsername == null || sg.GameJoinerUsername != username && sg.GameMakerUsername == null)
             .AsEnumerable()
             .Select(sg => $"{sg.GameConfiguration!.Name.Split("_")[0]}_{sg.CreatedAtDateTime}")
             .ToList();
     }
     
-    /// Finds a saved game by its name in the database.
-    /// Finds a saved game by its name in the database.
-    /// Finds a saved game by its name in the database.
     public string? FindSavedGame(string gameName)
     {
         string? finalFormattedDateTime = ParseGameNameToDateTime(gameName);
@@ -158,11 +148,19 @@ public class GameRepositoryDb : IGameRepository
         {
             saveGame.GameJoinerUsername = existingGame.GameJoinerUsername;
         }
+        
+        if (existingGame.GameMakerUsername != null)
+        {
+            saveGame.GameMakerUsername = existingGame.GameMakerUsername;
+        }
 
         // If the existing game does not have a joiner and the maker is not the current user
         if (existingGame.GameJoinerUsername == null && existingGame.GameMakerUsername != username)
         {
             saveGame.GameJoinerUsername = username;
+        } else if (existingGame.GameMakerUsername == null && existingGame.GameJoinerUsername != username)
+        {
+            saveGame.GameMakerUsername = username;
         }
 
         // Save the new game state as a new entry

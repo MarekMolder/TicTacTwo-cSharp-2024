@@ -47,6 +47,9 @@ public class Index : PageModel
 
     [BindProperty(SupportsGet = true)] public string UserName { get; set; } = default!;
     
+    [BindProperty(SupportsGet = true)] public string PlayerXorO{ get; set; } = default!;
+    [BindProperty(SupportsGet = true)] public string NumberOfAIs{ get; set; } = default!;
+    
 
     public IActionResult OnGet()
     {
@@ -61,7 +64,7 @@ public class Index : PageModel
         else if (!string.IsNullOrEmpty(ConfigName))
         {
             StartNewGame();
-            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
+            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName});
         }
 
         return Page();
@@ -81,29 +84,46 @@ public class Index : PageModel
 
                 if (GameState.PlayerX == UserName || GameState.PlayerO == UserName)
                 {
-                    if ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && GameState.PlayerX == UserName) || 
+                    if ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && GameState.PlayerX == UserName) ||
                         (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && GameState.PlayerO == UserName))
                     {
                         PerformAction();
-                    } 
+                    }
                     else
                     {
                         TempData["ErrorMessage"] = "It's not your turn!";
                     }
                 }
-                return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
+
+                return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName});
             }
         }
         else if (!string.IsNullOrEmpty(ConfigName))
         {
             StartNewGame();
-            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName });
+            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName});
         }
 
         return Page();
     }
-
-
+    
+    private void StartNewGame()
+    {
+        var gameConfig = _configRepository.GetConfigurationByName(ConfigName);
+        
+        if (PlayerXorO == "O")
+        {
+            TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerO:UserName);
+            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerX:UserName);
+        }
+        else
+        {
+            TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX:UserName);
+            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerO:UserName);
+        }
+        
+    }
+    
     private void LoadExistingGame()
     {
         var state = _gameRepository.FindSavedGame(GameName);
@@ -116,10 +136,15 @@ public class Index : PageModel
         
         GameState savedGame = JsonConvert.DeserializeObject<GameState>(state);
 
-        if (savedGame.PlayerX != UserName && savedGame.PlayerO == "Player-0")
-        {
+
+        if (savedGame.PlayerO == "Player-0" && savedGame.PlayerX != UserName)
+        { 
             savedGame.PlayerO = UserName;
+        } else if (savedGame.PlayerX == "Player-X" && savedGame.PlayerO != UserName)
+        { 
+            savedGame.PlayerX = UserName;
         }
+        
         
         var config = GetConfiguration.LoadGameConfiguration(state);
 
@@ -132,14 +157,7 @@ public class Index : PageModel
         UpdateActionSelectList();
         CheckGameOver();
     }
-
-    private void StartNewGame()
-    {
-        var gameConfig = _configRepository.GetConfigurationByName(ConfigName);
-        TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX:UserName);
-        GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), UserName);
-    }
-
+    
     private void CheckGameOver()
     {
         var winner = TicTacTwoBrain.CheckWin();
