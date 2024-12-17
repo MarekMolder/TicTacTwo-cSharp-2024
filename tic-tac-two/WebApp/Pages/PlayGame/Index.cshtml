@@ -1,6 +1,6 @@
 ﻿@page
 @using GameBrain
-@model WebApp.Pages.Index
+@model Index
 
 <h1>TIC-TAC-TWO</h1>
 
@@ -99,7 +99,7 @@
         </div>
     }
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" name="SelectedAction" value="exit" class="btn btn-danger">Exit to menu</button>
 </form>
 
 @section Scripts {

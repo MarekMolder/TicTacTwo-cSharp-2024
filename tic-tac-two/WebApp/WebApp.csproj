@@ -33,6 +33,8 @@
       <_ContentIncludedByDefault Remove="Pages\GameConfiguration\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\GameConfiguration\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\GameConfiguration\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Draw\Draw.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Winner\Winner.cshtml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,7 +46,6 @@
 
     <ItemGroup>
       <Folder Include="img\" />
-      <Folder Include="Pages\Username\" />
     </ItemGroup>
 
     <ItemGroup>

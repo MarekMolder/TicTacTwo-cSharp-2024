@@ -1,12 +1,6 @@
-﻿using Domain;
+﻿namespace Domain;
 
-namespace Domain;
-
-/// <summary>
-/// Represents the configuration settings for a game.
-/// This includes the board size, piece settings, grid usage, and other game parameters.
-/// </summary>
-public class GameConfiguration()
+public class GameConfiguration
 {
     // Primary key
     /// <summary>

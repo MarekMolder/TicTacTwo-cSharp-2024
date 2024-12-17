@@ -1,20 +1,12 @@
-﻿using System.Runtime.Intrinsics.Arm;
-using DAL;
+﻿using DAL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Pages.NewGame;
 
-public class NewGame : PageModel
+public class NewGame(IConfigRepository configRepository) : PageModel
 {
-    private readonly IConfigRepository _configRepository;
-
-    public NewGame(IConfigRepository configRepository)
-    {
-        _configRepository = configRepository;
-    }
-    
     [BindProperty(SupportsGet = true)]
     public string UserName { get; set; } = default!;
     [BindProperty]
@@ -34,7 +26,7 @@ public class NewGame : PageModel
         
         ViewData["UserName"] = UserName;
 
-        var selectedListData = _configRepository.GetConfigurationNames()
+        var selectedListData = configRepository.GetConfigurationNames()
             .Select(name => new {id = name, value = name})
             .ToList();
         ConfigSelectList = new SelectList(selectedListData, "id", "value");
@@ -56,7 +48,7 @@ public class NewGame : PageModel
         }
         else
         {
-            var selectedConfig = _configRepository.GetConfigurationByName(ConfigName);
+            var selectedConfig = configRepository.GetConfigurationByName(ConfigName);
             
             return RedirectToPage("/PlayGame/Index", new { configName = selectedConfig.Name, userName = UserName, playerXorO = PlayerXorO, numberOfAIs = NumberOfAIs});
         }

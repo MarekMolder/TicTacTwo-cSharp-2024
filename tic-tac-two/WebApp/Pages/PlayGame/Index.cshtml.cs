@@ -2,24 +2,15 @@
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace WebApp.Pages;
+namespace WebApp.Pages.PlayGame;
 
-public class Index : PageModel
+public class Index(IConfigRepository configRepository, IGameRepository gameRepository)
+    : PageModel
 {
-    private readonly IConfigRepository _configRepository;
-    private readonly IGameRepository _gameRepository;
-
-    public Index(IConfigRepository configRepository, IGameRepository gameRepository)
-    {
-        _configRepository = configRepository;
-        _gameRepository = gameRepository;
-    }
-
-    [BindProperty] public Domain.GameConfiguration GameConfig { get; set; }
+    [BindProperty] public Domain.GameConfiguration GameConfig { get; set; } = null!;
 
     [BindProperty(SupportsGet = true)] public string ConfigName { get; set; } = default!;
 
@@ -39,9 +30,7 @@ public class Index : PageModel
 
     public List<string> ActionSelectList { get; set; } = default!;
 
-    [BindProperty(SupportsGet = true)] public int GameId { get; set; }
-
-    [BindProperty(SupportsGet = true)] public string GameName { get; set; }
+    [BindProperty(SupportsGet = true)] public string GameName { get; set; } = null!;
 
     [BindProperty] public bool IsGameOver { get; set; } = false;
 
@@ -56,15 +45,18 @@ public class Index : PageModel
         if (!string.IsNullOrEmpty(GameName))
         {
             LoadExistingGame();
-            GameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
+            GameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson())!;
                 
             TempData["PlayerX"] = GameState.PlayerX;
             TempData["PlayerO"] = GameState.PlayerO;
+            
+            HandleAiMove();
+            
         }
         else if (!string.IsNullOrEmpty(ConfigName))
         {
             StartNewGame();
-            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName});
+            return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName, numberOfAIs = NumberOfAIs});
         }
 
         return Page();
@@ -72,28 +64,22 @@ public class Index : PageModel
 
     public IActionResult OnPost()
     {
+        if (SelectedAction == "exit")
+        {
+            return RedirectToPage("/NewGame/NewGame", new {userName = UserName});
+        }
+        
         if (!string.IsNullOrEmpty(GameName))
         {
             LoadExistingGame();
             if (!IsGameOver)
             {
-                GameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
+                GameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson())!;
                 
                 TempData["PlayerX"] = GameState.PlayerX;
                 TempData["PlayerO"] = GameState.PlayerO;
-
-                if (GameState.PlayerX == UserName || GameState.PlayerO == UserName)
-                {
-                    if ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && GameState.PlayerX == UserName) ||
-                        (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && GameState.PlayerO == UserName))
-                    {
-                        PerformAction();
-                    }
-                    else
-                    {
-                        TempData["ErrorMessage"] = "It's not your turn!";
-                    }
-                }
+                
+                HandlePlayerMove();
 
                 return RedirectToPage("/PlayGame/Index", new { gameName = GameName, userName = UserName});
             }
@@ -109,51 +95,40 @@ public class Index : PageModel
     
     private void StartNewGame()
     {
-        var gameConfig = _configRepository.GetConfigurationByName(ConfigName);
+        var gameConfig = configRepository.GetConfigurationByName(ConfigName);
+        string playerX = "AI", playerO = "AI";
+
+        if (NumberOfAIs == "0")
+        {
+            playerX = PlayerXorO == "X" ? UserName : "Player-X";
+            playerO = PlayerXorO == "O" ? UserName : "Player-O";
+        }
+        else if (NumberOfAIs == "1")
+        {
+            playerX = PlayerXorO == "X" ? UserName : "AI";
+            playerO = PlayerXorO == "O" ? UserName : "AI";
+        }
         
-        if (PlayerXorO == "O")
-        {
-            TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerO:UserName);
-            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerX:UserName);
-        }
-        else
-        {
-            TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX:UserName);
-            GameName = _gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerO:UserName);
-        }
+        TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX: playerX, playerO: playerO);
+        GameName = gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerX: playerX, playerO: playerO);
         
     }
     
     private void LoadExistingGame()
     {
-        var state = _gameRepository.FindSavedGame(GameName);
-
-        if (string.IsNullOrEmpty(state))
-        {
-            // Handle the error gracefully, maybe return a message or redirect
-            throw new Exception("Game state not found or is empty.");
-        }
+        var state = gameRepository.FindSavedGame(GameName) ?? throw new Exception("Game state not found or is empty.");;
         
-        GameState savedGame = JsonConvert.DeserializeObject<GameState>(state);
-
-
-        if (savedGame.PlayerO == "Player-0" && savedGame.PlayerX != UserName)
-        { 
-            savedGame.PlayerO = UserName;
-        } else if (savedGame.PlayerX == "Player-X" && savedGame.PlayerO != UserName)
-        { 
-            savedGame.PlayerX = UserName;
-        }
+        GameState savedGame = JsonConvert.DeserializeObject<GameState>(state)!;
         
+        savedGame.PlayerO = savedGame.PlayerO == "Player-0" ? UserName : savedGame.PlayerO;
+        savedGame.PlayerX = savedGame.PlayerX == "Player-X" ? UserName : savedGame.PlayerX;
         
         var config = GetConfiguration.LoadGameConfiguration(state);
 
         TicTacTwoBrain = new TicTacTwoBrain(config);
-        
         TicTacTwoBrain.SetGameStateJson(JsonConvert.SerializeObject(savedGame));
         
-        GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), UserName);
-        
+        GameName = gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), UserName);
         UpdateActionSelectList();
         CheckGameOver();
     }
@@ -165,47 +140,67 @@ public class Index : PageModel
         {
             var gameState = JsonSerializer.Deserialize<GameState>(TicTacTwoBrain.GetGameStateJson());
             
-            string winnerName = winner == EGamePiece.X ? gameState.PlayerX : gameState.PlayerO;
-            ViewData["Message"] = $"{winnerName} wins!";
+            string winnerName = winner == EGamePiece.X ? gameState!.PlayerX : gameState!.PlayerO;
+            string message = $"{winnerName} wins!"; 
+            ViewData["Message"] = message;
             IsGameOver = true;
         }
         else if (TicTacTwoBrain.CheckDraw())
         {
-            ViewData["Message"] = "It's a draw!";
+            string message = "It's a draw!"; 
+            ViewData["Message"] = message;
             IsGameOver = true;
+        }
+
+
+    }
+    
+    private void HandleAiMove()
+    {
+        if (!IsGameOver && 
+            ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && GameState.PlayerX == "AI") ||
+             (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && GameState.PlayerO == "AI")))
+        {
+            TicTacTwoBrain.AiMove();
+            GameName = gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), "AI");
+            CheckGameOver();
+        }
+    }
+    
+    private void HandlePlayerMove()
+    {
+        if ((GameState.PlayerX == UserName || GameState.PlayerO == UserName) && 
+            ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && GameState.PlayerX == UserName) ||
+             (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && GameState.PlayerO == UserName)))
+        {
+            if (!IsGameOver)
+            {
+                PerformAction();
+            }
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "It's not your turn!";
         }
     }
 
     private void PerformAction()
     {
-        bool hasPiecesLeft = TicTacTwoBrain.HasPiecesLeft();
-        bool canMovePiece = TicTacTwoBrain.CanMovePiece();
-        bool canMoveGrid = TicTacTwoBrain.CanMoveGrid();
-
         switch (SelectedAction)
         {
-            case "PlaceNewButton":
-                if (hasPiecesLeft)
-                {
-                    TicTacTwoBrain.PlaceNewPiece(CoordinateX, CoordinateY);
-                }
+            case "PlaceNewButton" when TicTacTwoBrain.HasPiecesLeft():
+                TicTacTwoBrain.PlaceNewPiece(CoordinateX, CoordinateY);
                 break;
-            case "MoveOldButton":
-                if (canMovePiece)
-                {
-                    TicTacTwoBrain.MoveExistingPiece(OldCoordinateX, OldCoordinateY, CoordinateX, CoordinateY);
-                }
+            case "MoveOldButton" when TicTacTwoBrain.CanMovePiece():
+                TicTacTwoBrain.MoveExistingPiece(OldCoordinateX, OldCoordinateY, CoordinateX, CoordinateY);
                 break;
-            case "MoveGrid":
-                if (canMoveGrid)
-                {
-                    TicTacTwoBrain.MoveGrid(CoordinateX, CoordinateY);
-                }
+            case "MoveGrid" when TicTacTwoBrain.CanMoveGrid():
+                TicTacTwoBrain.MoveGrid(CoordinateX, CoordinateY);
                 break;
             default:
                 return;
         }
-        GameName = _gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), UserName);
+        GameName = gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), UserName);
         CheckGameOver();
     }
 
@@ -213,7 +208,7 @@ public class Index : PageModel
     {
         var actions = new List<string>();
 
-        if (TicTacTwoBrain.HasPiecesLeft()) //TODO: SAAB IKKA NUPPE PANNA, VIGA ON MÄNGULAUAS
+        if (TicTacTwoBrain.HasPiecesLeft())
         {
             actions.Add("PlaceNewButton");
         }

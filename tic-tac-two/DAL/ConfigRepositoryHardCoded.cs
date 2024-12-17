@@ -1,12 +1,8 @@
 ﻿using Domain;
-using GameBrain;
 
 namespace DAL;
 
-/// <summary>
-/// Abstract base class for managing game configurations.
-/// </summary>
-public abstract class ConfigRepositoryHardCoded
+public class ConfigRepositoryHardCoded
 {
     /// <summary>
     /// A static readonly list of predefined game configurations.
@@ -31,18 +27,18 @@ public abstract class ConfigRepositoryHardCoded
 
         new GameConfiguration()
         {
-            Name = "Regular", // Name of the configuration
-            BoardSizeWidth = 5, // Width of the game board
-            BoardSizeHeight = 5, // Height of the game board
-            PiecesNumber = 25, // Number of pieces available for each player
-            WinCondition = 3, // Number of pieces in a row needed to win
-            UsesGrid = true, // Indicates that a grid is used
-            GridSizeHeight = 3, // Height of the grid
-            GridSizeWidth = 3, // Width of the grid
-            MovePieceAfterNMove = 2, // Number of moves before a piece can be moved
-            MoveGridAfterNMove = 2, // Number of moves before the grid can be moved
-            GridPositionX = 1, // X position of the grid
-            GridPositionY = 1 // Y position of the grid
+            Name = "Regular",
+            BoardSizeWidth = 5,
+            BoardSizeHeight = 5,
+            PiecesNumber = 25,
+            WinCondition = 3,
+            UsesGrid = true,
+            GridSizeHeight = 3,
+            GridSizeWidth = 3,
+            MovePieceAfterNMove = 2,
+            MoveGridAfterNMove = 2,
+            GridPositionX = 1,
+            GridPositionY = 1
         },
         
         new GameConfiguration()
@@ -54,23 +50,19 @@ public abstract class ConfigRepositoryHardCoded
     /// <summary>
     /// Retrieves the names of all available game configurations, sorted alphabetically.
     /// </summary>
-    /// <returns>A list of configuration names.</returns>
     public List<string> GetConfigurationNames()
     {
         return _gameConfigurations
-            .OrderBy(x => x.Name) // Order configurations by name
-            .Select(config => config.Name) // Select the name of each configuration
-            .ToList(); // Convert to a list
+            .OrderBy(x => x.Name)
+            .Select(config => config.Name)
+            .ToList();
     }
     
     /// <summary>
     /// Gets a specific game configuration by its name.
     /// </summary>
-    /// <param name="name">The name of the game configuration to retrieve.</param>
-    /// <returns>The game configuration matching the provided name.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if no configuration matches the name.</exception>
     public GameConfiguration GetConfigurationByName(string name)
     {
-        return _gameConfigurations.Single(c => c.Name == name); // Retrieve the configuration with the matching name
+        return _gameConfigurations.Single(c => c.Name == name);
     }
 }

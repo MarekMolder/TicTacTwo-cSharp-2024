@@ -1,27 +1,21 @@
 ﻿namespace MenuSystem
 {
-    /// <summary>
-    /// Represents a text-based menu handler that allows users to navigate through options using keyboard input.
-    /// </summary>
     public class ConsoleMenuHandler
     {
-        private int SelectedIndex; // The index of the currently selected option in the menu.
-        private string[] Options; // The array of options available in the menu.
-        private string[] Descriptions; // The array of descriptions for each option.
-        private string Prompt; // The prompt message displayed at the top of the menu.
+        private int _selectedIndex;
+        private readonly string[] _options;
+        private readonly string[] _descriptions;
+        private readonly string _prompt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleMenuHandler"/> class.
         /// </summary>
-        /// <param name="prompt">The prompt to display above the menu options.</param>
-        /// <param name="options">An array of strings representing the menu options.</param>
-        /// <param name="descriptions">An array of strings representing the descriptions for the options.</param>
         public ConsoleMenuHandler(string prompt, string[] options, string[] descriptions)
         {
-            Prompt = prompt; // Set the prompt message.
-            Options = options; // Set the menu options.
-            Descriptions = descriptions; // Set the descriptions for the options.
-            SelectedIndex = 0; // Initialize the selected index to the first option.
+            _prompt = prompt;
+            _options = options;
+            _descriptions = descriptions;
+            _selectedIndex = 0;
         }
 
         /// <summary>
@@ -30,72 +24,69 @@
         /// </summary>
         private void DisplayOptions()
         {
-            Console.WriteLine(Prompt); // Display the prompt message.
-            for (int i = 0; i < Options.Length; i++)
+            Console.WriteLine(_prompt);
+            for (int i = 0; i < _options.Length; i++)
             {
-                string currentOption = Options[i]; // Get the current option text.
-                string description = Descriptions[i]; // Get the description for the current option.
-                string prefix; // Prefix to indicate selection.
+                string currentOption = _options[i];
+                string description = _descriptions[i];
+                string prefix;
 
-                // Determine the appearance of the current option based on selection.
-                if (i == SelectedIndex)
+                if (i == _selectedIndex)
                 {
                     prefix = "*"; // Selected option prefix.
-                    Console.ForegroundColor = ConsoleColor.Black; // Set text color for selected option.
-                    Console.BackgroundColor = ConsoleColor.White; // Set background color for selected option.
-                    Console.Write($" {prefix} << {currentOption} >> "); // Display the current option.
-                    Console.ForegroundColor = ConsoleColor.Black; // Change to gray for the description.
-                    Console.WriteLine($"- {description}"); // Display the description next to the selected option.
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.Write($" {prefix} << {currentOption} >> ");
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.WriteLine($"- {description}");
                 }
                 else
                 {
-                    prefix = " "; // Non-selected option prefix.
-                    Console.ForegroundColor = ConsoleColor.White; // Set text color for non-selected options.
-                    Console.BackgroundColor = ConsoleColor.Black; // Set background color for non-selected options.
-                    Console.Write($" {prefix} << {currentOption} >> "); // Display the current option.
-                    Console.ResetColor(); // Reset colors for the description.
-                    Console.WriteLine(); // New line for non-selected options.
+                    prefix = " ";
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.Write($" {prefix} << {currentOption} >> ");
+                    Console.ResetColor();
+                    Console.WriteLine();
                 }
             }
-            Console.ResetColor(); // Reset the console colors to default after displaying all options.
+            Console.ResetColor();
         }
 
         /// <summary>
         /// Runs the menu, allowing user interaction to navigate through options and select one.
         /// </summary>
-        /// <returns>The index of the selected option.</returns>
         public int Run()
         {
-            ConsoleKey keyPressed; // Variable to store the key pressed by the user.
+            ConsoleKey keyPressed;
             do
             {
-                Console.Clear(); // Clear the console for a fresh display.
-                DisplayOptions(); // Display the menu options.
+                Console.Clear();
+                DisplayOptions();
                 
-                ConsoleKeyInfo keyInfo = Console.ReadKey(true); // Read a key press without displaying it.
-                keyPressed = keyInfo.Key; // Store the key pressed.
+                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                keyPressed = keyInfo.Key;
                 
-                // Handle Up Arrow key press to navigate up in the menu.
                 if (keyPressed == ConsoleKey.UpArrow)
                 {
-                    SelectedIndex--; // Decrease the selected index.
-                    if (SelectedIndex == -1) // Wrap around to the last option if at the top.
+                    _selectedIndex--;
+                    if (_selectedIndex == -1)
                     {
-                        SelectedIndex = Options.Length - 1;
+                        _selectedIndex = _options.Length - 1;
                     }
                 }
-                // Handle Down Arrow key press to navigate down in the menu.
+             
                 else if (keyPressed == ConsoleKey.DownArrow)
                 {
-                    SelectedIndex++; // Increase the selected index.
-                    if (SelectedIndex == Options.Length) // Wrap around to the first option if at the bottom.
+                    _selectedIndex++; 
+                    if (_selectedIndex == _options.Length)
                     {
-                        SelectedIndex = 0;
+                        _selectedIndex = 0;
                     }
                 }
-            } while (keyPressed != ConsoleKey.Enter); // Continue until Enter key is pressed.
+            } while (keyPressed != ConsoleKey.Enter);
             
-            return SelectedIndex; // Return the index of the selected option.
+            return _selectedIndex;
         }
     }
 }

@@ -1,70 +1,57 @@
 ﻿using Domain;
-using GameBrain;
 
 namespace DAL;
 
-/// <summary>
-/// Repository class that manages game configuration files in JSON format.
-/// </summary>
 public class ConfigRepositoryJson : IConfigRepository
 {
 
     /// <summary>
     /// Retrieves a list of configuration names (without the file extension).
     /// </summary>
-    /// <returns>A list of configuration names.</returns>
     public List<string> GetConfigurationNames()
     {
         CheckAndCreateInitialConfig();
         
-        // Get all JSON configuration files in the directory without .config.json extension
-        return System.IO.Directory
+        return Directory
             .GetFiles(FileHelper.BasePath, "*" + FileHelper.ConfigExtension)
-            .Select(filePath => System.IO.Path.GetFileName(filePath)
-                .Replace(FileHelper.ConfigExtension, "")) // Remove the .config.json part
+            .Select(filePath => Path.GetFileName(filePath)
+                .Replace(FileHelper.ConfigExtension, ""))
             .ToList();
     }
 
     /// <summary>
     /// Retrieves a specific game configuration by its name.
     /// </summary>
-    /// <param name="name">The name of the configuration.</param>
-    /// <returns>A <see cref="GameConfiguration"/> object representing the configuration.</returns>
-    /// <exception cref="FileNotFoundException">Thrown if the configuration file is not found.</exception>
     public GameConfiguration GetConfigurationByName(string name)
     {
         Console.WriteLine($"real: {name}");
-        // Construct the full path of the config file
-        var filePath = System.IO.Path.Combine(FileHelper.BasePath, $"{name}" + FileHelper.ConfigExtension);
+       
+        var filePath = Path.Combine(FileHelper.BasePath, $"{name}" + FileHelper.ConfigExtension);
 
-        if (!System.IO.File.Exists(filePath))
+        if (!File.Exists(filePath))
         {
             throw new FileNotFoundException($"Configuration file for {name} not found.");
         }
-
-        // Read the JSON content and deserialize it to GameConfiguration
-        var jsonContent = System.IO.File.ReadAllText(filePath);
+        
+        var jsonContent = File.ReadAllText(filePath);
         return System.Text.Json.JsonSerializer.Deserialize<GameConfiguration>(jsonContent)!;
     }
 
     /// <summary>
     /// Checks if the initial configuration files exist, and if not, creates them.
     /// </summary>
-    private void CheckAndCreateInitialConfig()
+    private static void CheckAndCreateInitialConfig()
     {
-        // Ensure the directory exists
-        if (!System.IO.Directory.Exists(FileHelper.BasePath))
+        if (!Directory.Exists(FileHelper.BasePath))
         {
-            System.IO.Directory.CreateDirectory(FileHelper.BasePath);
+            Directory.CreateDirectory(FileHelper.BasePath);
         }
-
-        // Check if there are any .config.json files
-        var configFiles = System.IO.Directory.GetFiles(FileHelper.BasePath, "*" + FileHelper.ConfigExtension).ToList();
         
-        // If no configuration files exist, create them from hardcoded defaults
+        var configFiles = Directory.GetFiles(FileHelper.BasePath, "*" + FileHelper.ConfigExtension).ToList();
+        
         if (configFiles.Count == 0)
         {
-            var hardCodedRepo = new ConcreteConfigRepositoryHardCoded();
+            var hardCodedRepo = new ConfigRepositoryHardCoded();
             var optionNames = hardCodedRepo.GetConfigurationNames();
             
             foreach (var optionName in optionNames)
@@ -72,28 +59,26 @@ public class ConfigRepositoryJson : IConfigRepository
                 var gameOption = hardCodedRepo.GetConfigurationByName(optionName);
                 var optionJsonStr = System.Text.Json.JsonSerializer.Serialize(gameOption);
                 
-                // Correctly construct the file path and write the configuration to the file
-                var filePath = System.IO.Path.Combine(FileHelper.BasePath, $"{gameOption.Name}" + FileHelper.ConfigExtension);
-                System.IO.File.WriteAllText(filePath, optionJsonStr);
+                var filePath = Path.Combine(FileHelper.BasePath, $"{gameOption.Name}" + FileHelper.ConfigExtension);
+                File.WriteAllText(filePath, optionJsonStr);
             }
         }
     }
     
+    /// <summary>
+    /// Saves a specific configuration
+    /// </summary>
     public void SaveConfiguration(GameConfiguration config)
     {
-        // Ensure the directory exists
-        if (!System.IO.Directory.Exists(FileHelper.BasePath))
+        if (!Directory.Exists(FileHelper.BasePath))
         {
-            System.IO.Directory.CreateDirectory(FileHelper.BasePath);
+            Directory.CreateDirectory(FileHelper.BasePath);
         }
-
-        // Serialize the configuration object to JSON
+        
         var jsonContent = System.Text.Json.JsonSerializer.Serialize(config);
+        
+        var filePath = Path.Combine(FileHelper.BasePath, $"{config.Name}" + FileHelper.ConfigExtension);
 
-        // Construct the full path for the JSON file
-        var filePath = System.IO.Path.Combine(FileHelper.BasePath, $"{config.Name}" + FileHelper.ConfigExtension);
-
-        // Write the serialized JSON content to the file
-        System.IO.File.WriteAllText(filePath, jsonContent);
+        File.WriteAllText(filePath, jsonContent);
     }
 }

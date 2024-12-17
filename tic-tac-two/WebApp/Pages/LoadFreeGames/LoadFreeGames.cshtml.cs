@@ -5,15 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Pages.LoadFreeGames;
 
-public class LoadFreeGames : PageModel
+public class LoadFreeGames(IGameRepository gameRepository) : PageModel
 {
-    private readonly IGameRepository _gameRepository;
-
-    public LoadFreeGames(IGameRepository gameRepository)
-    {
-        _gameRepository = gameRepository;
-    }
-    
     [BindProperty(SupportsGet = true)]
     public string UserName { get; set; } = default!;
     
@@ -28,7 +21,7 @@ public class LoadFreeGames : PageModel
         
         ViewData["UserName"] = UserName;
 
-        var selectedListData = _gameRepository.GetFreeJoinGames(UserName)
+        var selectedListData = gameRepository.GetFreeJoinGames(UserName)
             .Select(name => new {id = name, value = name})
             .ToList();
         GameSelectList = new SelectList(selectedListData, "id", "value");

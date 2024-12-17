@@ -3,18 +3,18 @@ using Domain;
 
 namespace GameBrain;
 
-public class GetConfiguration
+public static class GetConfiguration
 {
+    /// <summary>
+    /// Loads the game configuration from a JSON string.
+    /// </summary>
     public static GameConfiguration LoadGameConfiguration (string gameStateJson)
     {
-        // Deserialize the JSON string to a dynamic object
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var gameData = JsonSerializer.Deserialize<JsonElement>(gameStateJson, options);
-
-        // Extract the GameSettings values from the JSON object
+        
         var gameConfigJson = gameData.GetProperty("GameConfiguration");
-
-        // Create a new GameSettings object with extracted values
+        
         var gameConfig = new GameConfiguration()
         {
             Name = gameConfigJson.GetProperty("Name").GetString() ?? "Default",
@@ -34,6 +34,9 @@ public class GetConfiguration
         return gameConfig;
     }
     
+    /// <summary>
+    /// Loads the game state, including the board and player data, from a JSON string.
+    /// </summary>
     public static GameState LoadGameState(string gameStateJson, GameConfiguration gameConfig)
     {
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -51,8 +54,7 @@ public class GetConfiguration
             }
             gameBoard[i] = boardRow;
         }
-
-        // Create the GameState object
+        
         var gameState = new GameState(gameBoard, gameConfig)
         {
             GameBoard = gameBoard,
@@ -62,8 +64,8 @@ public class GetConfiguration
             PiecesLeftO = gameData.GetProperty("PiecesLeftO").GetInt32(),
             MovesMadeX = gameData.GetProperty("MovesMadeX").GetInt32(),
             MovesMadeO = gameData.GetProperty("MovesMadeO").GetInt32(),
-            PlayerO = gameData.GetProperty("PlayerO").GetString(),
-            PlayerX = gameData.GetProperty("PlayerX").GetString(),
+            PlayerO = gameData.GetProperty("PlayerO").GetString()!,
+            PlayerX = gameData.GetProperty("PlayerX").GetString()!,
             GridPositionX = gameData.GetProperty("GridPositionX").GetInt32(),
             GridPositionY = gameData.GetProperty("GridPositionY").GetInt32(),
         };

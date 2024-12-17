@@ -6,78 +6,91 @@ ViewData["Title"] = "Custom Game";
 
 <h1>Insert Data</h1>
 
+
 <div class="row">
     <div class="col-md-4">
         <form method="post">
+            @if (Model.Errors?.Any() == true)
+            {
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach (var error in Model.Errors)
+                    {
+                    <li>@error</li>
+                    }
+                </ul>
+            </div>
+            }
+            
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label asp-for="BoardWidth"></label>
-                <input asp-for="BoardWidth" class="form-control" />
+                <label asp-for="BoardWidth">BoardWidth - Board width must be between 2 and 20</label>
+                <input asp-for="BoardWidth" class="form-control"/>
                 <span asp-validation-for="BoardWidth" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="BoardHeight"></label>
-                <input asp-for="BoardHeight" class="form-control" />
+                <label asp-for="BoardHeight">BoardHeight - Board height must be between 2 and 20</label>
+                <input asp-for="BoardHeight" class="form-control"/>
                 <span asp-validation-for="BoardHeight" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="PieceNumber"></label>
-                <input asp-for="PieceNumber" class="form-control" />
+                <label asp-for="PieceNumber">Number of pieces - Piece number must be between 2 and 100</label>
+                <input asp-for="PieceNumber" class="form-control"/>
                 <span asp-validation-for="PieceNumber" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="WinCondition"></label>
-                <input asp-for="WinCondition" class="form-control" />
+                <label asp-for="WinCondition">Win Condition - Win condition must be between 2 and 10 + cant be bigger than Piece Number</label>
+                <input asp-for="WinCondition" class="form-control"/>
                 <span asp-validation-for="WinCondition" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="PieceMove"></label>
-                <input asp-for="PieceMove" class="form-control" />
+                <label asp-for="PieceMove">Move pieces after n move - must be a positive number</label>
+                <input asp-for="PieceMove" class="form-control"/>
                 <span asp-validation-for="PieceMove" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Grid"></label>
-                <input asp-for="Grid" type="checkbox" class="" />
+                <label asp-for="Grid">Want grid in your game?</label>
+                <input asp-for="Grid" type="checkbox" class=""/>
                 <span asp-validation-for="Grid" class="text-danger"></span>
             </div>
 
             <!-- Grid Fields (initially hidden, shown when checkbox is checked) -->
             <div class="grid-fields">
                 <div class="form-group">
-                    <label asp-for="GridWidth"></label>
-                    <input asp-for="GridWidth" class="form-control" />
+                    <label asp-for="GridWidth">GridWidth - Grid width must be between WinCondition and BoardWidth</label>
+                    <input asp-for="GridWidth" class="form-control"/>
                     <span asp-validation-for="GridWidth" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="GridHeight"></label>
-                    <input asp-for="GridHeight" class="form-control" />
+                    <label asp-for="GridHeight">GridHeight - Grid height must be between WinCondition and BoardHeight</label>
+                    <input asp-for="GridHeight" class="form-control"/>
                     <span asp-validation-for="GridHeight" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="GridMove"></label>
-                    <input asp-for="GridMove" class="form-control" />
+                    <label asp-for="GridMove">Move grid after n move - must be a positive number</label>
+                    <input asp-for="GridMove" class="form-control"/>
                     <span asp-validation-for="GridMove" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="GridX"></label>
-                    <input asp-for="GridX" class="form-control" />
+                    <label asp-for="GridX">GridX - can't be out of bounds</label>
+                    <input asp-for="GridX" class="form-control"/>
                     <span asp-validation-for="GridX" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="GridY"></label>
-                    <input asp-for="GridY" class="form-control" />
+                    <label asp-for="GridY">GridY - can't be out of bounds</label>
+                    <input asp-for="GridY" class="form-control"/>
                     <span asp-validation-for="GridY" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="form-group">
-                <input type="submit" value="Confirm" class="btn btn-primary" />
+                <input type="submit" value="Confirm" class="btn btn-primary"/>
             </div>
         </form>
     </div>

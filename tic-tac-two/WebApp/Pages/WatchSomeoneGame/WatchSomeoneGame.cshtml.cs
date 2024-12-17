@@ -5,15 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Pages.WatchSomeoneGame;
 
-public class WatchSomeoneGame : PageModel
+public class WatchSomeoneGame(IGameRepository gameRepository) : PageModel
 {
-    private readonly IGameRepository _gameRepository;
-
-    public WatchSomeoneGame(IGameRepository gameRepository)
-    {
-        _gameRepository = gameRepository;
-    }
-    
     [BindProperty(SupportsGet = true)]
     public string UserName { get; set; } = default!;
     
@@ -28,7 +21,7 @@ public class WatchSomeoneGame : PageModel
         
         ViewData["UserName"] = UserName;
 
-        var selectedListData = _gameRepository.GetSavedGameNames()
+        var selectedListData = gameRepository.GetSavedGameNames()
             .Select(name => new {id = name, value = name})
             .ToList();
         GameSelectList = new SelectList(selectedListData, "id", "value");

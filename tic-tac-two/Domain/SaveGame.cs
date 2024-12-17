@@ -1,12 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-
 namespace Domain;
 
-/// <summary>
-/// Represents a saved game in the database, containing the game state and metadata.
-/// </summary>
 public class SaveGame
 {
     /// <summary>
@@ -42,12 +38,12 @@ public class SaveGame
     public GameConfiguration? GameConfiguration { get; set; }
     
     /// <summary>
-    /// Gets or sets the name of the player who saved the game.
+    /// Gets or sets the name of the player who is playing the game.
     /// </summary>
-    public string? GameMakerUsername { get; set; } = default!;
+    public string? Player1 { get; set; }
 
     /// <summary>
-    /// Gets or sets the version of the game at the time of saving.
+    /// Gets or sets the name of the player who is playing the game.
     /// </summary>
-    public string? GameJoinerUsername { get; set; } = default!;
+    public string? Player2 { get; set; }
 }

@@ -21,10 +21,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // .AddScoped<>(); - create new one for every web request
 
 // Saab vahetada andembaasi ja jsoni vastu
-//builder.Services.AddScoped<IConfigRepository, ConfigRepositoryJson>();
-//builder.Services.AddScoped<IGameRepository, GameRepositoryJson>();
-builder.Services.AddScoped<IConfigRepository, ConfigRepositoryDb>();
-builder.Services.AddScoped<IGameRepository, GameRepositoryDb>();
+builder.Services.AddScoped<IConfigRepository, ConfigRepositoryJson>();
+builder.Services.AddScoped<IGameRepository, GameRepositoryJson>();
+//builder.Services.AddScoped<IConfigRepository, ConfigRepositoryDb>();
+//builder.Services.AddScoped<IGameRepository, GameRepositoryDb>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

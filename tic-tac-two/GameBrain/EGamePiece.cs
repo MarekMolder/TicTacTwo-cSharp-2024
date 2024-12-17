@@ -1,8 +1,5 @@
 ﻿namespace GameBrain;
 
-/// <summary>
-/// Represents the possible game pieces in the game.
-/// </summary>
 public enum EGamePiece
 {
     /// <summary>

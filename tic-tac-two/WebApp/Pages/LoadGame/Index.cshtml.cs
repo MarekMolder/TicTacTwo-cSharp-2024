@@ -5,15 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Pages.LoadGame;
 
-public class Index : PageModel
+public class Index(IGameRepository gameRepository) : PageModel
 {
-    private readonly IGameRepository _gameRepository;
-
-    public Index(IGameRepository gameRepository)
-    {
-        _gameRepository = gameRepository;
-    }
-    
     [BindProperty(SupportsGet = true)]
     public string UserName { get; set; } = default!;
     
@@ -28,7 +21,7 @@ public class Index : PageModel
         
         ViewData["UserName"] = UserName;
 
-        var selectedListData = _gameRepository.GetUsernameSavedGameNames(UserName)
+        var selectedListData = gameRepository.GetUsernameSavedGameNames(UserName)
             .Select(name => new {id = name, value = name})
             .ToList();
         GameSelectList = new SelectList(selectedListData, "id", "value");
