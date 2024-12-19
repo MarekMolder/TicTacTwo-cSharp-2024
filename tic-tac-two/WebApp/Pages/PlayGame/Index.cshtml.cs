@@ -181,9 +181,29 @@ public class Index(IConfigRepository configRepository, IGameRepository gameRepos
             ((TicTacTwoBrain.CurrentPlayer == EGamePiece.X && GameState.PlayerX == "AI") ||
              (TicTacTwoBrain.CurrentPlayer == EGamePiece.O && GameState.PlayerO == "AI")))
         {
-            TicTacTwoBrain.AiMove();
-            GameName = gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName, TicTacTwoBrain.GetGameConfig(), "AI");
-            CheckGameOver();
+            int piecesLeft = 0;
+            if (GameState.PlayerX == "AI" && TicTacTwoBrain.CurrentPlayer == EGamePiece.X)
+            {
+                piecesLeft = GameState.PiecesLeftX;  // AI is Player X
+            }
+            else if (GameState.PlayerO == "AI" && TicTacTwoBrain.CurrentPlayer == EGamePiece.O)
+            {
+                piecesLeft = GameState.PiecesLeftO;  // AI is Player O
+            }
+
+            if (piecesLeft > 0)
+            {
+                TicTacTwoBrain.AiMove();
+                GameName = gameRepository.UpdateGame(TicTacTwoBrain.GetGameStateJson(), GameName,
+                    TicTacTwoBrain.GetGameConfig(), "AI");
+                CheckGameOver();
+            }
+            else
+            {
+                string message = "It's a draw!"; 
+                ViewData["Message"] = message;
+                IsGameOver = true;
+            }
         }
     }
     

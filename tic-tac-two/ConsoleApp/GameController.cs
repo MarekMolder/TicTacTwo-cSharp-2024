@@ -82,6 +82,15 @@ public class GameController(IGameRepository gameRepository)
         {
             _gameInstance.AiMove();
         }
+        else
+        {
+            Console.Clear();
+            Visualizer.DrawBoard(_gameInstance);
+            Console.WriteLine("It's a draw! Either no more pieces left or the board is full.");
+            Console.WriteLine("Game over! Press Enter to exit.");
+            TicTacTwoBrain.WaitForEnter();
+            Environment.Exit(0);
+        }
         
         CheckEndGame(gameState);
     }

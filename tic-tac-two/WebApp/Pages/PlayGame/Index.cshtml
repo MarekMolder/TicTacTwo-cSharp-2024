@@ -94,7 +94,7 @@
     @foreach (var action in Model.ActionSelectList)
     {
         <div class="form-group">
-            <input type="checkbox" id="@action" name="SelectedAction" value="@action" />
+            <input type="radio" id="@action" name="SelectedAction" value="@action" />
             <label for="@action">@action</label>
         </div>
     }

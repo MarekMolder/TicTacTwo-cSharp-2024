@@ -44,7 +44,7 @@ public class NewGame(IConfigRepository configRepository) : PageModel
         
         if (ConfigName == "Custom")
         {
-            return RedirectToPage("/CustomGame/CustomGame", new { userName = UserName, playerXor = PlayerXorO, numberOfAIs = NumberOfAIs });
+            return RedirectToPage("/CustomGame/CustomGame", new { userName = UserName, playerXorO = PlayerXorO, numberOfAIs = NumberOfAIs });
         }
         else
         {
