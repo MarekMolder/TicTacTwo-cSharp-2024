@@ -381,11 +381,25 @@ namespace GameBrain
                 if (winner != null) return winner;
             }
             
-            var diagWinner = CheckLine(board, startX, startY, 1, 1, Math.Min(width, height));
-            if (diagWinner != null) return diagWinner;
+            for (int i = 0; i < width; i++)
+            {
+                var diagWinner1 = CheckLine(board, startX + i, startY, 1, 1, Math.Min(width - i, height));
+                if (diagWinner1 != null) return diagWinner1;
 
-            diagWinner = CheckLine(board, startX + width - 1, startY, -1, 1, Math.Min(width, height));
-            return diagWinner;
+                var diagWinner2 = CheckLine(board, startX + i, startY + height - 1, 1, -1, Math.Min(width - i, height));
+                if (diagWinner2 != null) return diagWinner2;
+            }
+
+            for (int j = 0; j < height; j++)
+            {
+                var diagWinner1 = CheckLine(board, startX, startY + j, 1, 1, Math.Min(width, height - j));
+                if (diagWinner1 != null) return diagWinner1;
+
+                var diagWinner2 = CheckLine(board, startX + width - 1, startY + j, -1, 1, Math.Min(width, height - j));
+                if (diagWinner2 != null) return diagWinner2;
+            }
+            
+            return null;
         }
         
         /// <summary>
