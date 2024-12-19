@@ -43,7 +43,7 @@ ViewData["Title"] = "Custom Game";
             </div>
 
             <div class="form-group">
-                <label asp-for="WinCondition">Win Condition - Win condition must be between 2 and 10 + cant be bigger than Piece Number</label>
+                <label asp-for="WinCondition">Win Condition - cant be bigger than Piece Number</label>
                 <input asp-for="WinCondition" class="form-control"/>
                 <span asp-validation-for="WinCondition" class="text-danger"></span>
             </div>
@@ -63,12 +63,12 @@ ViewData["Title"] = "Custom Game";
             <!-- Grid Fields (initially hidden, shown when checkbox is checked) -->
             <div class="grid-fields">
                 <div class="form-group">
-                    <label asp-for="GridWidth">GridWidth - Grid width must be between WinCondition and BoardWidth</label>
+                    <label asp-for="GridWidth">GridWidth - Grid width must be between 1 and BoardWidth</label>
                     <input asp-for="GridWidth" class="form-control"/>
                     <span asp-validation-for="GridWidth" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="GridHeight">GridHeight - Grid height must be between WinCondition and BoardHeight</label>
+                    <label asp-for="GridHeight">GridHeight - Grid height must be between 1 and BoardHeight</label>
                     <input asp-for="GridHeight" class="form-control"/>
                     <span asp-validation-for="GridHeight" class="text-danger"></span>
                 </div>

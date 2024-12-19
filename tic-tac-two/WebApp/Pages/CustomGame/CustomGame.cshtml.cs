@@ -73,6 +73,18 @@ namespace WebApp.Pages.CustomGame
         {
             
             var errors = new List<string>();
+            
+            var maxBoardValue = Grid
+                ? Math.Min(GridHeight, GridWidth)
+                : Math.Min(BoardHeight, BoardWidth);
+
+            var maxWinCondition = Math.Min(maxBoardValue, PieceNumber);
+            const int minValue = 1;
+
+            if (WinCondition < minValue || WinCondition > maxWinCondition)
+            {
+                errors.Add($"Win Condition must be between {minValue} and {maxWinCondition}.");
+            }
 
             if (PieceNumber < WinCondition)
             {
@@ -81,14 +93,14 @@ namespace WebApp.Pages.CustomGame
 
             if (Grid)
             {
-                if (GridWidth < WinCondition || GridWidth > BoardWidth)
+                if (GridWidth < 1 || GridWidth > BoardWidth)
                 {
-                    errors.Add($"Grid width must be between 0 and {BoardWidth}.");
+                    errors.Add($"Grid width must be between 1 and {BoardWidth}.");
                 }
 
-                if (GridHeight < WinCondition || GridHeight > BoardHeight)
+                if (GridHeight < 1 || GridHeight > BoardHeight)
                 {
-                    errors.Add($"Grid height must be between 0 and {BoardHeight}.");
+                    errors.Add($"Grid height must be between 1 and {BoardHeight}.");
                 }
                 
                 if (GridX < 0 || GridX + GridWidth > BoardWidth)
