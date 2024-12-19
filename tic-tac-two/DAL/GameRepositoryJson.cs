@@ -10,7 +10,7 @@ public class GameRepositoryJson : IGameRepository
     /// </summary>
     public string Savegame(string jsonStateString, GameConfiguration gameConfig, string? playerX = null, string? playerO = null)
     {
-        var sanitizedName = string.Join("_", gameConfig.Name.Split(Path.GetInvalidFileNameChars()));
+        var sanitizedName = gameConfig.Name.Split("_")[0];
         var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         var fileName = Path.Combine(FileHelper.BasePath, $"{sanitizedName}_{timestamp}{FileHelper.GameExtension}");
 

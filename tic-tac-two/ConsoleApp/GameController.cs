@@ -118,9 +118,9 @@ public class GameController(IGameRepository gameRepository)
 
         string promptMessage;
         promptMessage =
-            $" {(hasPiecesLeft ? "Do you want to place a new piece" : "")}{(canMovePiece ? ", move an existing piece" : "")}{(canMoveGrid ? ", move the grid" : "")}, save the game or exit the game?";
+            $"{(hasPiecesLeft ? "Do you want to place a new piece" : "")}{(canMovePiece ? ", move an existing piece" : "")}{(canMoveGrid ? ", move the grid" : "")}, save the game or exit the game?";
         
-        var options = GenerateMoveOptions(canMovePiece, canMoveGrid, hasPiecesLeft);
+        var options = GenerateMoveOptions(hasPiecesLeft, canMovePiece, canMoveGrid);
         
         while (true)
         {
@@ -179,9 +179,10 @@ public class GameController(IGameRepository gameRepository)
     private List<string> GenerateMoveOptions(bool hasPiecesLeft, bool canMovePiece, bool canMoveGrid)
     {
         var options = new List<string> { "save", "exit" };
+        if (hasPiecesLeft) options.Add("new");
         if (canMovePiece) options.Add("old");
         if (canMoveGrid) options.Add("grid");
-        if (hasPiecesLeft) options.Add("new");
+
         return options;
     }
     

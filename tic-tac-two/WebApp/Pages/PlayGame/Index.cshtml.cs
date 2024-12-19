@@ -96,22 +96,36 @@ public class Index(IConfigRepository configRepository, IGameRepository gameRepos
     private void StartNewGame()
     {
         var gameConfig = configRepository.GetConfigurationByName(ConfigName);
-        string playerX = "AI", playerO = "AI";
 
         if (NumberOfAIs == "0")
         {
-            playerX = PlayerXorO == "X" ? UserName : "Player-X";
-            playerO = PlayerXorO == "O" ? UserName : "Player-O";
-        }
-        else if (NumberOfAIs == "1")
+            if (PlayerXorO == "O")
+            {
+                TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerO:UserName);
+                GameName = gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerO:UserName);
+            }
+            else
+            {
+                TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX:UserName);
+                GameName = gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerX:UserName);
+            }
+        } else if (NumberOfAIs == "1")
         {
-            playerX = PlayerXorO == "X" ? UserName : "AI";
-            playerO = PlayerXorO == "O" ? UserName : "AI";
+            if (PlayerXorO == "O")
+            {
+                TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerO:UserName, playerX:"AI");
+                GameName = gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerO:UserName, playerX:"AI");
+            }
+            else
+            {
+                TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX:UserName, playerO:"AI");
+                GameName = gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerX:UserName, playerO:"AI");
+            }
+        } else if (NumberOfAIs == "2")
+        {
+            TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerO:"AI", playerX:"AI");
+            GameName = gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerX:"AI", playerO:"AI");
         }
-        
-        TicTacTwoBrain = new TicTacTwoBrain(gameConfig, playerX: playerX, playerO: playerO);
-        GameName = gameRepository.Savegame(TicTacTwoBrain.GetGameStateJson(), TicTacTwoBrain.GetGameConfig(), playerX: playerX, playerO: playerO);
-        
     }
     
     private void LoadExistingGame()
@@ -120,8 +134,14 @@ public class Index(IConfigRepository configRepository, IGameRepository gameRepos
         
         GameState savedGame = JsonConvert.DeserializeObject<GameState>(state)!;
         
-        savedGame.PlayerO = savedGame.PlayerO == "Player-0" ? UserName : savedGame.PlayerO;
-        savedGame.PlayerX = savedGame.PlayerX == "Player-X" ? UserName : savedGame.PlayerX;
+        if (savedGame.PlayerO == "Player-0" && savedGame.PlayerX != UserName)
+        { 
+            savedGame.PlayerO = UserName;
+        } else if (savedGame.PlayerX == "Player-X" && savedGame.PlayerO != UserName)
+        { 
+            savedGame.PlayerX = UserName;
+        }
+
         
         var config = GetConfiguration.LoadGameConfiguration(state);
 
