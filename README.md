@@ -47,4 +47,4 @@
 4. Start a new game or continue a saved one.
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the LICENSE file for details.
